@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Polski dla trenera — с нуля до A2</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#2e7d4f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Polski">
 <style>
   :root{
     --bg:#f6f3ee; --card:#ffffff; --ink:#26221c; --muted:#8a8177;
@@ -82,6 +88,19 @@
   .exam-card p,.exam-card h3{color:#fff}
   .badge{display:inline-block;font-size:11px;background:var(--accent2);color:#fff;border-radius:8px;padding:2px 8px;margin-left:6px;vertical-align:middle}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+  .stats-strip{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
+  .stat-item{text-align:center;flex:1;min-width:72px}
+  .stat-item .num{font-size:21px;font-weight:800;color:var(--accent)}
+  .stat-item .lbl{font-size:11px;color:var(--muted)}
+  h3.sec{margin:22px 0 10px}
+  .chat{display:flex;flex-direction:column;gap:10px;margin-top:14px;text-align:left}
+  .bub{max-width:85%;padding:10px 14px;border-radius:14px;font-size:16px}
+  .bub .bru{font-size:12px;color:var(--muted);margin-top:3px}
+  .bub.other{background:var(--bg);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+  .bub.me{background:#e6f4ec;border:1px solid #bcdcc9;align-self:flex-end;border-bottom-right-radius:4px}
+  .bub.me .bru{color:#5b8a6d}
+  .opt .oru{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  .note-inline{font-size:13px;color:#3b5578;background:#eef3fb;border-radius:10px;padding:8px 12px;margin-top:12px;text-align:left}
 </style>
 </head>
 <body>
@@ -633,6 +652,169 @@ const LESSONS = [
 
 const ALL_WORDS = LESSONS.flatMap(l => l.words);
 
+/* ============================================================
+   ДИАЛОГИ: ты — тренер (реплики 'u'), собеседник — 'o'
+   ============================================================ */
+
+const DIALOGUES = [
+{ id:'d1', emoji:'🤝', title:'Знакомство с учеником', turns:[
+  {who:'o', pl:'Dzień dobry! To pani jest nowym trenerem?', ru:'Добрый день! Это вы новый тренер?'},
+  {who:'u', pl:'Dzień dobry! Tak, mam na imię Julia. Miło mi.', ru:'Добрый день! Да, меня зовут Юля. Очень приятно.'},
+  {who:'o', pl:'Miło mi, jestem Marek. Gram pierwszy raz.', ru:'Очень приятно, я Марек. Играю первый раз.'},
+  {who:'u', pl:'Świetnie! Zaczynamy od rozgrzewki.', ru:'Отлично! Начнём с разминки.'},
+  {who:'o', pl:'Dobrze. Gdzie mam stanąć?', ru:'Хорошо. Где мне встать?'},
+  {who:'u', pl:'Ustaw się na linii, proszę.', ru:'Встань на линию, пожалуйста.'},
+  {who:'o', pl:'OK. Co dalej?', ru:'Окей. Что дальше?'},
+  {who:'u', pl:'Patrz na piłkę i zegnij kolana.', ru:'Смотри на мяч и согни колени.'},
+]},
+{ id:'d2', emoji:'📞', title:'Бронь корта по телефону', turns:[
+  {who:'o', pl:'Klub tenisowy, słucham?', ru:'Теннисный клуб, слушаю?'},
+  {who:'u', pl:'Dzień dobry, chcę zarezerwować kort na jutro.', ru:'Добрый день, я хочу забронировать корт на завтра.'},
+  {who:'o', pl:'Na którą godzinę?', ru:'На который час?'},
+  {who:'u', pl:'Na dziesiątą rano, poproszę.', ru:'На десять утра, пожалуйста.'},
+  {who:'o', pl:'Kort numer dwa jest wolny. Na jak długo?', ru:'Корт номер два свободен. На сколько времени?'},
+  {who:'u', pl:'Na dwie godziny, poproszę.', ru:'На два часа, пожалуйста.'},
+  {who:'o', pl:'Zapisane. Do zobaczenia jutro!', ru:'Записано. До встречи завтра!'},
+  {who:'u', pl:'Dziękuję bardzo. Do widzenia!', ru:'Большое спасибо. До свидания!'},
+]},
+{ id:'d3', emoji:'⏰', title:'Опоздание на тренировку', turns:[
+  {who:'o', pl:'Cześć, gdzie jesteś? Trening już się zaczyna.', ru:'Привет, ты где? Тренировка уже начинается.'},
+  {who:'u', pl:'Przepraszam, stoję w korku. Spóźnię się dziesięć minut.', ru:'Извини, я стою в пробке. Опоздаю на десять минут.'},
+  {who:'o', pl:'Nie szkodzi. Czekamy na korcie.', ru:'Ничего страшного. Ждём на корте.'},
+  {who:'u', pl:'Będę za pięć minut. Zaczynajcie rozgrzewkę!', ru:'Буду через пять минут. Начинайте разминку!'},
+  {who:'o', pl:'OK, do zobaczenia.', ru:'Окей, до встречи.'},
+  {who:'u', pl:'Dziękuję! Przepraszam za spóźnienie.', ru:'Спасибо! Извините за опоздание.'},
+]},
+{ id:'d4', emoji:'🚙', title:'Смолток про машину', turns:[
+  {who:'o', pl:'Widziałem twoje nowe auto na parkingu. Ładne!', ru:'Я видел твою новую машину на парковке. Красивая!'},
+  {who:'u', pl:'Dziękuję! To nowy samochód.', ru:'Спасибо! Это новая машина.'},
+  {who:'o', pl:'Jakim samochodem jeździsz?', ru:'На какой машине ты ездишь?'},
+  {who:'u', pl:'Toyotą. Jest szybka i pali mało.', ru:'На Тойоте. Она быстрая и мало расходует.'},
+  {who:'o', pl:'A mój samochód jest w warsztacie. Nie odpala.', ru:'А моя машина в сервисе. Не заводится.'},
+  {who:'u', pl:'O nie! To duży problem?', ru:'О нет! Это большая проблема?'},
+  {who:'o', pl:'Nie, to tylko akumulator.', ru:'Нет, это только аккумулятор.'},
+  {who:'u', pl:'No to nie jest drogo. Powodzenia!', ru:'Ну, это недорого. Удачи!'},
+]},
+{ id:'d5', emoji:'☕', title:'В кафе после тренировки', turns:[
+  {who:'o', pl:'Dzień dobry, co podać?', ru:'Добрый день, что подать?'},
+  {who:'u', pl:'Poproszę kawę z mlekiem i wodę niegazowaną.', ru:'Кофе с молоком и воду без газа, пожалуйста.'},
+  {who:'o', pl:'Coś jeszcze?', ru:'Что-нибудь ещё?'},
+  {who:'u', pl:'Tak, poproszę zupę. Jestem głodna.', ru:'Да, суп, пожалуйста. Я голодна.'},
+  {who:'o', pl:'Zupa dnia to pomidorowa. Może być?', ru:'Суп дня — томатный. Подойдёт?'},
+  {who:'u', pl:'Tak, może być. Dziękuję.', ru:'Да, подойдёт. Спасибо.'},
+  {who:'o', pl:'Proszę, smacznego!', ru:'Пожалуйста, приятного аппетита!'},
+  {who:'u', pl:'Dziękuję! Poproszę potem rachunek.', ru:'Спасибо! Потом счёт, пожалуйста.'},
+]},
+{ id:'d6', emoji:'🤕', title:'Травма на корте', turns:[
+  {who:'o', pl:'Aua! Boli mnie kostka.', ru:'Ай! У меня болит лодыжка.'},
+  {who:'u', pl:'Uwaga! Usiądź, proszę. Gdzie boli?', ru:'Осторожно! Сядь, пожалуйста. Где болит?'},
+  {who:'o', pl:'Tutaj. Chyba skręciłem kostkę.', ru:'Здесь. Кажется, я подвернул лодыжку.'},
+  {who:'u', pl:'Zrobimy przerwę. Potrzebujesz lodu.', ru:'Сделаем перерыв. Тебе нужен лёд.'},
+  {who:'o', pl:'Dziękuję. Już mi trochę lepiej.', ru:'Спасибо. Мне уже немного лучше.'},
+  {who:'u', pl:'Koniec treningu na dzisiaj. Odpocznij.', ru:'На сегодня тренировка окончена. Отдохни.'},
+  {who:'o', pl:'Dobrze. Do zobaczenia w piątek?', ru:'Хорошо. Увидимся в пятницу?'},
+  {who:'u', pl:'Tak, jeśli nic nie boli. Trzymaj się!', ru:'Да, если ничего не болит. Держись!'},
+]},
+{ id:'d7', emoji:'💰', title:'Оплата и расписание', turns:[
+  {who:'o', pl:'Ile kosztuje lekcja tenisa?', ru:'Сколько стоит урок тенниса?'},
+  {who:'u', pl:'Sto złotych za godzinę.', ru:'Сто злотых за час.'},
+  {who:'o', pl:'A czy mogę zapłacić kartą?', ru:'А могу я заплатить картой?'},
+  {who:'u', pl:'Tak, oczywiście. Karta albo gotówka.', ru:'Да, конечно. Карта или наличные.'},
+  {who:'o', pl:'Świetnie. Kiedy ma pani wolny termin?', ru:'Отлично. Когда у вас есть свободное окно?'},
+  {who:'u', pl:'Pasuje panu środa o piątej?', ru:'Вам подходит среда в пять?'},
+  {who:'o', pl:'Tak, pasuje. Do zobaczenia w środę!', ru:'Да, подходит. До встречи в среду!'},
+  {who:'u', pl:'Zapisane. Do widzenia!', ru:'Записано. До свидания!'},
+]},
+{ id:'d8', emoji:'🌧', title:'Дождь и перенос на крытый корт', turns:[
+  {who:'o', pl:'Jaka będzie jutro pogoda?', ru:'Какая завтра будет погода?'},
+  {who:'u', pl:'Pada deszcz. Musimy przełożyć trening.', ru:'Идёт дождь. Нам нужно перенести тренировку.'},
+  {who:'o', pl:'A kort kryty? Jest wolny?', ru:'А крытый корт? Он свободен?'},
+  {who:'u', pl:'Dobry pomysł! Zarezerwuję halę.', ru:'Хорошая идея! Я забронирую зал.'},
+  {who:'o', pl:'Super. O której godzinie?', ru:'Супер. Во сколько?'},
+  {who:'u', pl:'O dziesiątej, jak zawsze.', ru:'В десять, как всегда.'},
+  {who:'o', pl:'OK, do zobaczenia jutro.', ru:'Окей, до встречи завтра.'},
+  {who:'u', pl:'Do zobaczenia! Nie zapomnij rakiety.', ru:'До встречи! Не забудь ракетку.'},
+]},
+];
+
+/* ============================================================
+   ГРАММАТИКА: банк упражнений (48 шт)
+   ============================================================ */
+
+const GRAMMAR = [
+  {q:'(ja) ___ trenerem tenisa', o:['jestem','jesteś','jest'], a:'jestem', note:'być: ja jestem, ty jesteś, on/ona jest'},
+  {q:'(ty) ___ czas jutro?', o:['masz','mam','ma'], a:'masz', note:'mieć: ja mam, ty masz, on/ona ma'},
+  {q:'Ona ___ nową rakietę', o:['ma','masz','mamy'], a:'ma', note:'on/ona ma — 3-е лицо'},
+  {q:'(my) ___ na korcie', o:['jesteśmy','jestem','są'], a:'jesteśmy', note:'my jesteśmy — «мы есть»'},
+  {q:'Czy pan ___ wolny termin?', o:['ma','masz','mają'], a:'ma', note:'к pan/pani глагол идёт в 3-м лице: pan ma, pani jest'},
+  {q:'(ja) ___ córkę', o:['mam','ma','masz'], a:'mam', note:'«у меня есть» = mam'},
+  {q:'Poproszę ___ (kawa)', o:['kawę','kawa','kawie'], a:'kawę', note:'винительный после poproszę: -a → -ę'},
+  {q:'Poproszę ___ z cytryną (herbata)', o:['herbatę','herbata','herbaty'], a:'herbatę', note:'herbata → herbatę (винительный)'},
+  {q:'Mam nową ___ (rakieta)', o:['rakietę','rakieta','rakiecie'], a:'rakietę', note:'mam + винительный: rakieta → rakietę'},
+  {q:'Widzę ___ (piłka)', o:['piłkę','piłka','piłki'], a:'piłkę', note:'piłka → piłkę (винительный)'},
+  {q:'Rezerwuję ___ na jutro (kort)', o:['kort','korta','kortem'], a:'kort', note:'мужской неодушевлённый в винительном не меняется: kort'},
+  {q:'Poproszę ___ niegazowaną (woda)', o:['wodę','woda','wody'], a:'wodę', note:'woda → wodę'},
+  {q:'Jadę na trening ___ (samochód)', o:['samochodem','samochód','samochodzie'], a:'samochodem', note:'творительный: ехать ЧЕМ — samochodem'},
+  {q:'Jestem ___ (trener)', o:['trenerem','trener','trenera'], a:'trenerem', note:'быть КЕМ — творительный: trenerem'},
+  {q:'Płacę ___ (karta)', o:['kartą','karta','kartę'], a:'kartą', note:'платить ЧЕМ: karta → kartą'},
+  {q:'Jadę ___ (tramwaj)', o:['tramwajem','tramwaj','tramwaju'], a:'tramwajem', note:'tramwaj → tramwajem'},
+  {q:'Interesuję się ___ (sport)', o:['sportem','sport','sporcie'], a:'sportem', note:'interesować się + творительный'},
+  {q:'Ona jest ___ (kierowca)', o:['kierowcą','kierowca','kierowcy'], a:'kierowcą', note:'-a → -ą в творительном'},
+  {q:'___ na piłkę! (patrzeć)', o:['Patrz','Patrzysz','Patrzeć'], a:'Patrz', note:'повелительное: patrz! — смотри!'},
+  {q:'___ kolana! (zginać)', o:['Zegnij','Zegniesz','Zginać'], a:'Zegnij', note:'zegnij! — согни!'},
+  {q:'___ do siatki! (podejść)', o:['Podejdź','Podejdziesz','Podchodzić'], a:'Podejdź', note:'podejdź! — подойди!'},
+  {q:'___ rakietę mocno! (trzymać)', o:['Trzymaj','Trzymasz','Trzymać'], a:'Trzymaj', note:'trzymaj! — держи!'},
+  {q:'___ piłkę wyżej! (podrzucić)', o:['Podrzuć','Podrzucisz','Podrzucać'], a:'Podrzuć', note:'podrzuć! — подбрось!'},
+  {q:'Nie ___ się! (spieszyć)', o:['spiesz','spieszysz','spieszyć'], a:'spiesz', note:'nie spiesz się! — не торопись!'},
+  {q:'Wczoraj ___ trening (odwołać, я)', o:['odwołałam','odwołałem','odwołać'], a:'odwołałam', note:'женщина о себе в прошедшем: -łam (мужчина: -łem)'},
+  {q:'___ klucze (zgubić, я)', o:['Zgubiłam','Zgubiłem','Zgubić'], a:'Zgubiłam', note:'zgubiłam — я потеряла (ж.р.)'},
+  {q:'___ przed klubem (zaparkować, я)', o:['Zaparkowałam','Zaparkowałem','Zaparkować'], a:'Zaparkowałam', note:'-łam: я припарковалась'},
+  {q:'Rano ___ kawę (pić, я)', o:['piłam','piłem','pić'], a:'piłam', note:'piłam — я пила (ж.р.)'},
+  {q:'___ do Polski rok temu (przyjechać, я)', o:['przyjechałam','przyjechałem','przyjechać'], a:'przyjechałam', note:'przyjechałam — я приехала'},
+  {q:'On ___ na trening (przyjść)', o:['przyszedł','przyszła','przyszłam'], a:'przyszedł', note:'мужская форма: on przyszedł, ona przyszła'},
+  {q:'Trening jest ___ dziesiątej', o:['o','w','na'], a:'o', note:'час — предлог o: o dziesiątej'},
+  {q:'Mam czas ___ poniedziałek', o:['w','o','na'], a:'w', note:'день недели — w: w poniedziałek'},
+  {q:'Będę ___ pięć minut', o:['za','po','o'], a:'za', note:'«через» — za: za pięć minut'},
+  {q:'Umówmy się ___ jutro', o:['na','w','o'], a:'na', note:'договориться НА — na jutro'},
+  {q:'Trening jest ___ południu', o:['po','o','w'], a:'po', note:'po południu — после полудня'},
+  {q:'Widzimy się ___ piątej', o:['o','w','za'], a:'o', note:'встречаемся В (час) — o piątej'},
+  {q:'Gdzie ___? (ty, pracować)', o:['pracujesz','pracuję','pracuje'], a:'pracujesz', note:'ты: -esz / -isz / -asz'},
+  {q:'(ja) ___ w klubie tenisowym (pracować)', o:['pracuję','pracujesz','pracuje'], a:'pracuję', note:'я: -ę / -m'},
+  {q:'Co ___? (ty, robić)', o:['robisz','robię','robi'], a:'robisz', note:'robisz — ты делаешь'},
+  {q:'(ja) ___ grać w tenisa (lubić)', o:['lubię','lubisz','lubi'], a:'lubię', note:'lubię + инфинитив — люблю делать'},
+  {q:'Ona ___ po polsku (mówić)', o:['mówi','mówię','mówisz'], a:'mówi', note:'on/ona mówi'},
+  {q:'(my) ___ na mączce (grać)', o:['gramy','gram','grają'], a:'gramy', note:'мы: -my'},
+  {q:'___ mnie kolano', o:['Boli','Bolą','Boleć'], a:'Boli', note:'boli mnie + что болит (ед.ч.)'},
+  {q:'___ mnie plecy', o:['Bolą','Boli','Boleć'], a:'Bolą', note:'plecy — множественное число: bolą'},
+  {q:'Czy boli ___ ręka? (ты)', o:['cię','ty','tobie'], a:'cię', note:'boli cię — у тебя болит'},
+  {q:'___ jesteś? — Z Rosji', o:['Skąd','Gdzie','Kiedy'], a:'Skąd', note:'skąd — откуда'},
+  {q:'___ kosztuje lekcja?', o:['Ile','Co','Jak'], a:'Ile', note:'ile — сколько'},
+  {q:'___ się interesujesz?', o:['Czym','Co','Kim'], a:'Czym', note:'czym — чем (творительный от co)'},
+];
+
+/* ============================================================
+   ЧИСЛА ПО-ПОЛЬСКИ
+   ============================================================ */
+
+const NUM_ONES = ['zero','jeden','dwa','trzy','cztery','pięć','sześć','siedem','osiem','dziewięć','dziesięć','jedenaście','dwanaście','trzynaście','czternaście','piętnaście','szesnaście','siedemnaście','osiemnaście','dziewiętnaście'];
+const NUM_TENS = ['','','dwadzieścia','trzydzieści','czterdzieści','pięćdziesiąt','sześćdziesiąt','siedemdziesiąt','osiemdziesiąt','dziewięćdziesiąt'];
+const NUM_HUNDREDS = ['','sto','dwieście','trzysta','czterysta','pięćset'];
+function numToPl(n){
+  if (n < 20) return NUM_ONES[n];
+  if (n < 100){
+    const t = NUM_TENS[Math.floor(n / 10)];
+    return n % 10 ? t + ' ' + NUM_ONES[n % 10] : t;
+  }
+  const h = NUM_HUNDREDS[Math.floor(n / 100)];
+  return n % 100 ? h + ' ' + numToPl(n % 100) : h;
+}
+function zloty(n){
+  const t = n % 10, h = n % 100;
+  const f = n === 1 ? 'złoty' : (t >= 2 && t <= 4 && (h < 12 || h > 14)) ? 'złote' : 'złotych';
+  return numToPl(n) + ' ' + f;
+}
+const HOURS_PL = ['','pierwsza','druga','trzecia','czwarta','piąta','szósta','siódma','ósma','dziewiąta','dziesiąta','jedenasta','dwunasta'];
+
 const DIGRAPHS = [
   ['sz','ш','szybko — быстро'],
   ['cz','ч','czas — время'],
@@ -698,14 +880,19 @@ if ('speechSynthesis' in window){
   pickVoice();
   speechSynthesis.onvoiceschanged = pickVoice;
 }
-function speak(text){
+function speak(text, rate){
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'pl-PL';
   if (plVoice) u.voice = plVoice;
-  u.rate = 0.85;
+  u.rate = rate || 0.85;
   speechSynthesis.speak(u);
+}
+/* Кнопки озвучки: обычная + медленная 🐢 */
+function speakBtns(text){
+  return `<button class="speak-btn" onclick="speak('${esc(text)}')" title="Послушать">🔊</button>
+    <button class="speak-btn" onclick="speak('${esc(text)}', 0.55)" title="Медленно">🐢</button>`;
 }
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -760,6 +947,67 @@ function lessonPct(lesson){
   return Math.round(MODES.reduce((a, m) => a + (s[m] || 0), 0) / MODES.length);
 }
 
+/* ============================================================
+   SRS: интервальные повторения, слабые слова, стрик
+   Ящики Лейтнера: верно → ящик выше, ошибка → ящик 1.
+   ============================================================ */
+
+const WK = 'polskiTrenerWords', DK = 'polskiTrenerDays';
+const BOX_DAYS = [1, 2, 4, 7, 15];
+const DAY_MS = 864e5;
+const ALL_BY_PL = new Map(ALL_WORDS.map(w => [w.pl, w]));
+function loadWS(){ try { return JSON.parse(localStorage.getItem(WK)) || {}; } catch(e){ return {}; } }
+function saveWS(s){ localStorage.setItem(WK, JSON.stringify(s)); }
+function todayKey(t){ return new Date(t || Date.now()).toLocaleDateString('sv'); }
+function bumpDay(){
+  let d; try { d = JSON.parse(localStorage.getItem(DK)) || {}; } catch(e){ d = {}; }
+  const k = todayKey();
+  d[k] = (d[k] || 0) + 1;
+  localStorage.setItem(DK, JSON.stringify(d));
+}
+function recordSeen(w){
+  if (!ALL_BY_PL.has(w.pl)) return;
+  const s = loadWS();
+  if (!s[w.pl]) s[w.pl] = {box: 1, due: Date.now() + DAY_MS, err: 0, ok: 0};
+  saveWS(s); bumpDay();
+}
+function recordAnswer(w, correct){
+  if (!ALL_BY_PL.has(w.pl)) return;
+  const s = loadWS();
+  const st = s[w.pl] || {box: 1, due: 0, err: 0, ok: 0};
+  if (correct){ st.ok++; st.box = Math.min(st.box + 1, 5); }
+  else { st.err++; st.box = 1; }
+  st.due = Date.now() + BOX_DAYS[st.box - 1] * DAY_MS;
+  s[w.pl] = st;
+  saveWS(s); bumpDay();
+}
+function dueWords(){
+  const s = loadWS(), now = Date.now();
+  return Object.keys(s).filter(pl => s[pl].due <= now).map(pl => ALL_BY_PL.get(pl)).filter(Boolean);
+}
+function weakWords(){
+  const s = loadWS();
+  return Object.keys(s).filter(pl => s[pl].err > 0 && s[pl].err >= s[pl].ok)
+    .sort((a, b) => (s[b].err - s[b].ok) - (s[a].err - s[a].ok))
+    .map(pl => ALL_BY_PL.get(pl)).filter(Boolean);
+}
+function srsCounts(){
+  const s = loadWS();
+  const keys = Object.keys(s);
+  return { inWork: keys.length, learned: keys.filter(k => s[k].box >= 4).length, due: dueWords().length };
+}
+function streak(){
+  let d; try { d = JSON.parse(localStorage.getItem(DK)) || {}; } catch(e){ d = {}; }
+  let n = 0;
+  for (let t = Date.now();; t -= DAY_MS){
+    const k = todayKey(t);
+    if (d[k]) n++;
+    else if (n === 0 && k === todayKey()) continue;  // сегодня ещё не занималась — серия не рвётся
+    else break;
+  }
+  return n;
+}
+
 let autoTts = localStorage.getItem('polskiTrenerAuto') !== 'off';
 function toggleAuto(){
   autoTts = !autoTts;
@@ -785,6 +1033,11 @@ function go(view, lessonId, mode){
   else if (view === 'lesson') renderLesson(lessonId);
   else if (view === 'mode') startMode(lessonId, mode);
   else if (view === 'exam') startExam();
+  else if (view === 'review') startReview();
+  else if (view === 'numbers') startNumbers();
+  else if (view === 'grammar') startGrammar();
+  else if (view === 'weak') renderWeak();
+  else if (view === 'dialogue') startDialogue(lessonId);
 }
 function findLesson(id){ return LESSONS.find(l => l.id === id); }
 function crumbs(lesson){
@@ -819,6 +1072,8 @@ function distractors(w, pool, field, k){
 
 function renderHome(){
   const total = ALL_WORDS.length;
+  const c = srsCounts();
+  const sk = streak();
   const cards = LESSONS.map(l => `
     <div class="card" onclick="go('lesson','${l.id}')">
       <div class="emoji">${l.emoji}</div>
@@ -826,20 +1081,53 @@ function renderHome(){
       <p>${l.desc} · ${l.words.length} фраз</p>
       <div class="bar"><i style="width:${lessonPct(l)}%"></i></div>
     </div>`).join('');
+  const dlgs = DIALOGUES.map(d => `
+    <div class="card" onclick="go('dialogue','${d.id}')">
+      <div class="emoji">${d.emoji}</div>
+      <h3>${d.title}${getStat(d.id, 'dlg') === 100 ? ' ✅' : ''}</h3>
+      <p>${d.turns.filter(t => t.who === 'u').length} твоих реплик</p>
+    </div>`).join('');
   const examBest = getStat('exam', 'exam');
+  const numBest = getStat('numbers', 'numbers');
+  const grBest = getStat('grammar', 'grammar');
+  const weakN = weakWords().length;
   app.innerHTML = `
+    <div class="stats-strip">
+      <div class="stat-item"><div class="num">🔥 ${sk}</div><div class="lbl">дней подряд</div></div>
+      <div class="stat-item"><div class="num">${c.inWork}</div><div class="lbl">слов в работе</div></div>
+      <div class="stat-item"><div class="num">${c.learned}</div><div class="lbl">знаю хорошо</div></div>
+      <div class="stat-item"><div class="num">${c.due}</div><div class="lbl">пора повторить</div></div>
+      <button class="${c.due ? 'warn' : 'ghost'}" onclick="go('review')">🔁 Повторение</button>
+    </div>
     <div class="card" onclick="go('alphabet')" style="margin-bottom:12px">
       <div class="emoji">🔤</div>
       <h3>Сначала: как читать по-польски</h3>
       <p>Буквы, диграфы (sz, cz, rz…) и ударение — 5 минут, и можно читать всё</p>
     </div>
+    <h3 class="sec">📚 Уроки</h3>
     <div class="grid">${cards}</div>
-    <div class="card exam-card" style="margin-top:12px" onclick="go('exam')">
-      <div class="emoji">🏆</div>
-      <h3>Экзамен: всё вперемешку</h3>
-      <p>30 вопросов всех типов из всех уроков (${total} слов). Лучший результат: ${examBest ? examBest + '%' : '—'}</p>
+    <h3 class="sec">💬 Диалоги</h3>
+    <div class="grid">${dlgs}</div>
+    <h3 class="sec">🏋️ Тренажёры</h3>
+    <div class="grid">
+      <div class="card" onclick="go('numbers')">
+        <div class="emoji">🔢</div><h3>Числа на слух</h3>
+        <p>Цены, время, счёт — услышать и записать цифрами. Лучший: ${numBest ? numBest + '%' : '—'}</p>
+      </div>
+      <div class="card" onclick="go('grammar')">
+        <div class="emoji">🧠</div><h3>Грамматика</h3>
+        <p>Падежи, спряжения, команды. Лучший: ${grBest ? grBest + '%' : '—'}</p>
+      </div>
+      <div class="card" onclick="go('weak')">
+        <div class="emoji">🩹</div><h3>Слабые слова</h3>
+        <p>${weakN ? weakN + ' слов, где ты чаще ошибаешься' : 'Пока пусто — и это хорошо!'}</p>
+      </div>
+      <div class="card exam-card" onclick="go('exam')">
+        <div class="emoji">🏆</div><h3>Экзамен</h3>
+        <p>30 вопросов из всех ${total} слов. Лучший: ${examBest ? examBest + '%' : '—'}</p>
+      </div>
     </div>
-    <div class="note">В каждом уроке 6 режимов: <b>учить</b> (карточки), <b>тест</b> (20 смешанных вопросов: перевод туда-обратно, на слух, впечатать слово, вставить пропуск), <b>аудирование</b> 🎧, <b>собери фразу</b> (с лишними словами-обманками), <b>пары</b> 🔗 и <b>говорение</b> 🎙 с проверкой через микрофон.</div>`;
+    <div class="note">Слова, которые ты учишь и в которых ошибаешься, автоматически попадают в очередь <b>повторения</b>: верный ответ отодвигает следующий повтор (1 → 2 → 4 → 7 → 15 дней), ошибка возвращает слово в начало. Заходи каждый день и жми «Повторение» 🔁</div>`;
 }
 
 function renderAlphabet(){
@@ -931,6 +1219,7 @@ function startLearn(l){
 function renderLearn(l){
   const w = state.order[state.idx];
   state.seen.add(w.pl);
+  recordSeen(w);
   setStat(l.id, 'learn', state.seen.size / l.words.length * 100);
   app.innerHTML = `
     ${crumbs(l)}
@@ -939,7 +1228,7 @@ function renderLearn(l){
       <div class="tr">≈ ${translit(w.pl)}</div>
       <div class="ru" id="ruBox" style="visibility:hidden">${w.ru}</div>
       <div class="btns">
-        <button class="speak-btn" onclick="speak('${esc(w.pl)}')">🔊</button>
+        ${speakBtns(w.pl)}
         <button onclick="document.getElementById('ruBox').style.visibility='visible'">Перевод</button>
       </div>
       <div class="btns">
@@ -1017,7 +1306,8 @@ const Q_TITLES = {
 
 function quizCrumbs(){
   const qz = state.quiz;
-  return qz.lesson ? crumbs(qz.lesson) : `<div class="crumbs" onclick="go('home')">← На главную (экзамен)</div>`;
+  if (qz.lesson) return crumbs(qz.lesson);
+  return `<div class="crumbs" onclick="go('home')">← На главную (${qz.isReview ? 'повторение' : 'экзамен'})</div>`;
 }
 function renderQuestion(){
   const qz = state.quiz;
@@ -1081,6 +1371,7 @@ function answerMC(i){
   lockOpts();
   const correctIdx = q.options.indexOf(q.w);
   document.getElementById('opt' + correctIdx).classList.add('correct');
+  recordAnswer(q.w, q.options[i] === q.w);
   if (q.options[i] === q.w) qz.right++;
   else { document.getElementById('opt' + i).classList.add('wrong'); qz.mistakes.push(q.w); }
   if (q.type !== 'audio_mc') speak(q.w.pl);
@@ -1092,6 +1383,7 @@ function answerGap(i){
   lockOpts();
   const correctIdx = q.options.indexOf(q.gap.toLowerCase());
   document.getElementById('opt' + correctIdx).classList.add('correct');
+  recordAnswer(q.w, i === correctIdx);
   if (i === correctIdx){
     qz.right++;
     document.querySelector('.gap-phrase').textContent = q.w.pl;
@@ -1113,6 +1405,7 @@ function answerTyped(){
   const exact = got === want;
   const noDia = stripDia(got) === stripDia(want);
   const close = similarity(stripDia(got), stripDia(want)) >= 0.9;
+  recordAnswer(q.w, exact || noDia || close);
   if (exact){
     qz.right++;
     v.textContent = '✅ Идеально!';
@@ -1140,6 +1433,9 @@ function finishQuiz(){
   const retry = qz.lesson
     ? `<button onclick="go('mode','${qz.lesson.id}','quiz')">Ещё раз</button>
        <button class="primary" onclick="go('mode','${qz.lesson.id}','listen')">Аудирование →</button>`
+    : qz.isReview
+    ? `<button onclick="go('review')">Ещё раз</button>
+       <button class="primary" onclick="go('home')">К урокам</button>`
     : `<button onclick="go('exam')">Ещё раз</button>
        <button class="primary" onclick="go('home')">К урокам</button>`;
   app.innerHTML = `${quizCrumbs()}
@@ -1184,6 +1480,7 @@ function answerListen(i){
   lockOpts();
   const correctIdx = q.options.indexOf(q.w);
   document.getElementById('opt' + correctIdx).classList.add('correct');
+  recordAnswer(q.w, q.options[i] === q.w);
   const v = document.getElementById('verdict');
   if (q.options[i] === q.w){
     st.right++;
@@ -1273,6 +1570,7 @@ function checkBuild(){
     v.textContent = '✅ Правильно! ' + state.phrases[state.bIdx].pl;
     v.className = 'verdict good';
     speak(state.phrases[state.bIdx].pl);
+    recordAnswer(state.phrases[state.bIdx], true);
     state.bDone++;
     setStat(l.id, 'build', state.bDone / state.phrases.length * 100);
     setTimeout(() => {
@@ -1380,7 +1678,7 @@ function renderSpeak(l){
       <div class="pl" style="margin-top:10px">${w.pl}</div>
       <div class="tr">≈ ${translit(w.pl)}</div>
       <div class="btns">
-        <button class="speak-btn" onclick="speak('${esc(w.pl)}')" title="Послушать">🔊</button>
+        ${speakBtns(w.pl)}
       </div>
       <div class="btns">
         ${supported
@@ -1422,6 +1720,7 @@ function listen(){
     if (bestSim >= 0.8){
       verdict.textContent = '✅ Świetnie! Отличное произношение';
       verdict.className = 'verdict good';
+      recordAnswer(state.sItems[state.sIdx], true);
       state.sDone++;
       setStat(l.id, 'speak', state.sDone / state.sItems.length * 100);
       setTimeout(speakNext, 1400);
@@ -1454,10 +1753,280 @@ function speakNext(){
   renderSpeak(l);
 }
 
+/* ============================================================
+   ПОВТОРЕНИЕ ДНЯ (SRS) И СЛАБЫЕ СЛОВА
+   ============================================================ */
+
+function startReview(){
+  const due = dueWords();
+  const weak = weakWords().filter(w => !due.includes(w));
+  const pool = [...due, ...weak].slice(0, 20);
+  if (!pool.length){
+    app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
+      <div class="big-card">
+        <div class="score">✅</div>
+        <div class="pl" style="font-size:20px">Повторять пока нечего!</div>
+        <div class="meta">Пройди урок или тест — слова попадут в очередь повторения автоматически. Возвращайся завтра.</div>
+        <div class="btns"><button class="primary" onclick="go('home')">К урокам</button></div>
+      </div>`;
+    return;
+  }
+  state.quiz = { qs: shuffle(pool).map(w => makeQuestion(w, ALL_WORDS)), idx: 0, right: 0, mistakes: [], lesson: null, statKey: ['review', 'review'], isReview: true };
+  renderQuestion();
+}
+
+function renderWeak(){
+  const ws = weakWords();
+  const s = loadWS();
+  if (!ws.length){
+    app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
+      <div class="big-card">
+        <div class="score">🩹</div>
+        <div class="pl" style="font-size:20px">Слабых слов нет!</div>
+        <div class="meta">Сюда попадают слова, в которых ты ошибаешься чаще, чем отвечаешь верно.</div>
+        <div class="btns"><button class="primary" onclick="go('home')">К урокам</button></div>
+      </div>`;
+    return;
+  }
+  const rows = ws.map(w => {
+    const st = s[w.pl];
+    return `<div>🔊 <span style="cursor:pointer" onclick="speak('${esc(w.pl)}')"><b>${w.pl}</b></span> — ${w.ru}
+      <span style="color:var(--bad)">✗${st.err}</span> <span style="color:var(--good)">✓${st.ok}</span></div>`;
+  }).join('');
+  app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
+    <div class="big-card">
+      <div class="pl" style="font-size:20px">🩹 Слабые слова (${ws.length})</div>
+      <div class="mistakes">${rows}</div>
+      <div class="btns"><button class="primary" onclick="trainWeak()">Тренировать →</button></div>
+    </div>`;
+}
+function trainWeak(){
+  const pool = weakWords().slice(0, 15);
+  state = {view: 'weak'};
+  state.quiz = { qs: shuffle(pool).map(w => makeQuestion(w, ALL_WORDS)), idx: 0, right: 0, mistakes: [], lesson: null, statKey: ['weak', 'weak'], isReview: true };
+  renderQuestion();
+}
+
+/* ============================================================
+   ДИАЛОГИ
+   ============================================================ */
+
+function startDialogue(id){
+  const d = DIALOGUES.find(x => x.id === id);
+  state = {view: 'dialogue', d, turn: 0, errors: 0, opts: null};
+  renderDialogue();
+}
+function dlgOptions(d, turn){
+  const correct = d.turns[turn];
+  const others = DIALOGUES.filter(x => x !== d).flatMap(x => x.turns.filter(t => t.who === 'u'));
+  return shuffle([correct, ...shuffle(others).slice(0, 2)]);
+}
+function renderDialogue(){
+  const d = state.d, turn = state.turn;
+  const past = d.turns.slice(0, turn).map(t =>
+    `<div class="bub ${t.who === 'u' ? 'me' : 'other'}"><div>${t.pl}</div><div class="bru">${t.ru}</div></div>`).join('');
+  const cur = d.turns[turn];
+  let controls = '';
+  if (!cur){
+    setStat(d.id, 'dlg', 100);
+    controls = `<div class="verdict good">🎉 Диалог пройден! Ошибок: ${state.errors}</div>
+      <div class="btns">
+        <button onclick="startDialogue('${d.id}')">Ещё раз</button>
+        <button class="primary" onclick="go('home')">К диалогам</button>
+      </div>`;
+  } else if (cur.who === 'o'){
+    controls = `<div class="chat"><div class="bub other"><div>${cur.pl}</div><div class="bru">${cur.ru}</div></div></div>
+      <div class="btns">
+        ${speakBtns(cur.pl)}
+        <button class="primary" onclick="dlgNext()">Дальше →</button>
+      </div>`;
+  } else {
+    if (!state.opts) state.opts = dlgOptions(d, turn);
+    controls = `<div class="meta" style="margin-top:14px">Твоя реплика — выбери подходящую:</div>
+      ${state.opts.map((o, i) =>
+        `<button class="opt" id="opt${i}" onclick="dlgAnswer(${i})">${o.pl}<span class="oru">≈ ${translit(o.pl)}</span></button>`).join('')}
+      <div class="verdict" id="verdict"></div>`;
+  }
+  app.innerHTML = `<div class="crumbs" onclick="go('home')">← Все диалоги</div>
+    <div class="big-card" style="text-align:left">
+      <div class="pl" style="font-size:18px;text-align:center">${d.emoji} ${d.title}</div>
+      <div class="chat">${past}</div>
+      <div style="text-align:center">${controls}</div>
+    </div>`;
+  if (cur && cur.who === 'o' && autoTts) setTimeout(() => speak(cur.pl), 200);
+}
+function dlgNext(){
+  state.turn++;
+  state.opts = null;
+  renderDialogue();
+}
+function dlgAnswer(i){
+  const correct = state.opts[i] === state.d.turns[state.turn];
+  bumpDay();
+  if (correct){
+    speak(state.d.turns[state.turn].pl);
+    dlgNext();
+  } else {
+    state.errors++;
+    const el = document.getElementById('opt' + i);
+    el.classList.add('wrong');
+    const v = document.getElementById('verdict');
+    v.textContent = '❌ Эта реплика из другого разговора, попробуй ещё';
+    v.className = 'verdict bad';
+  }
+}
+
+/* ============================================================
+   ЧИСЛА НА СЛУХ
+   ============================================================ */
+
+function genNumbers(){
+  const qs = [];
+  for (let i = 0; i < 15; i++){
+    const kind = ['num', 'num', 'price', 'time'][i % 4];
+    if (kind === 'num'){
+      const n = 1 + Math.floor(Math.random() * 199);
+      qs.push({kind, say: numToPl(n), show: String(n), n});
+    } else if (kind === 'price'){
+      const n = (1 + Math.floor(Math.random() * 100)) * 5;
+      qs.push({kind, say: zloty(n), show: n + ' zł', n});
+    } else {
+      const h = 1 + Math.floor(Math.random() * 12);
+      const m = [0, 5, 10, 15, 20, 30, 40, 45, 50][Math.floor(Math.random() * 9)];
+      qs.push({kind, say: 'Jest ' + HOURS_PL[h] + (m ? ' ' + numToPl(m) : ''), show: h + ':' + String(m).padStart(2, '0'), h, m});
+    }
+  }
+  return qs;
+}
+const NUM_HINTS = {num: 'число', price: 'цена в злотых', time: 'время (например 5:30)'};
+function startNumbers(){
+  state.num = {qs: genNumbers(), idx: 0, right: 0};
+  renderNumbers();
+}
+function renderNumbers(){
+  const st = state.num;
+  const q = st.qs[st.idx];
+  app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
+    <div class="big-card">
+      <div class="meta">Числа на слух ${st.idx + 1} / ${st.qs.length} · верно: ${st.right} <span class="badge">${NUM_HINTS[q.kind]}</span></div>
+      <div class="btns">
+        <button class="speak-big" onclick="speak('${esc(q.say)}')">🔊</button>
+        <button class="speak-btn" onclick="speak('${esc(q.say)}', 0.55)" title="Медленно">🐢</button>
+      </div>
+      <input class="answer" id="numInput" inputmode="numeric" autocomplete="off" placeholder="запиши цифрами${q.kind === 'time' ? ', например 5:30' : ''}">
+      <div class="btns"><button class="primary" onclick="answerNumber()">Проверить</button></div>
+      <div class="verdict" id="verdict"></div>
+    </div>`;
+  const inp = document.getElementById('numInput');
+  inp.focus();
+  inp.onkeydown = e => { if (e.key === 'Enter') answerNumber(); };
+  setTimeout(() => speak(q.say), 250);
+}
+function answerNumber(){
+  const st = state.num;
+  const q = st.qs[st.idx];
+  const inp = document.getElementById('numInput');
+  if (!inp || inp.disabled) return;
+  inp.disabled = true;
+  const digits = (inp.value.match(/\d+/g) || []).map(Number);
+  let ok;
+  if (q.kind === 'time') ok = digits.length >= 1 && digits[0] === q.h && (digits[1] || 0) === q.m;
+  else ok = digits.length === 1 && digits[0] === q.n;
+  bumpDay();
+  const v = document.getElementById('verdict');
+  if (ok){
+    st.right++;
+    v.textContent = '✅ ' + q.show + ' — ' + q.say;
+    v.className = 'verdict good';
+  } else {
+    v.textContent = '❌ Это было ' + q.show + ' — ' + q.say;
+    v.className = 'verdict bad';
+  }
+  setTimeout(() => {
+    st.idx++;
+    if (st.idx >= st.qs.length){
+      const pct = Math.round(st.right / st.qs.length * 100);
+      setStat('numbers', 'numbers', pct);
+      app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
+        <div class="big-card">
+          <div class="score">${pct}%</div>
+          <div class="pl" style="font-size:20px">Числа: ${st.right} из ${st.qs.length}</div>
+          <div class="btns">
+            <button onclick="go('numbers')">Ещё раз</button>
+            <button class="primary" onclick="go('home')">К урокам</button>
+          </div>
+        </div>`;
+      return;
+    }
+    renderNumbers();
+  }, ok ? 1300 : 2400);
+}
+
+/* ============================================================
+   ГРАММАТИКА
+   ============================================================ */
+
+function startGrammar(){
+  state.gr = {qs: shuffle(GRAMMAR).slice(0, 15), idx: 0, right: 0};
+  renderGrammar();
+}
+function renderGrammar(){
+  const st = state.gr;
+  const q = st.qs[st.idx];
+  const opts = shuffle(q.o.map((o, i) => i));
+  state.gr.optOrder = opts;
+  app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
+    <div class="big-card">
+      <div class="meta">Грамматика ${st.idx + 1} / ${st.qs.length} · верно: ${st.right}</div>
+      <div class="gap-phrase" style="font-size:21px">${q.q}</div>
+      <div style="margin-top:12px">${opts.map((oi, k) =>
+        `<button class="opt" id="opt${k}" onclick="answerGrammar(${k})" style="text-align:center">${q.o[oi]}</button>`).join('')}</div>
+      <div class="note-inline" id="grNote" style="display:none"></div>
+    </div>`;
+}
+function answerGrammar(k){
+  const st = state.gr;
+  const q = st.qs[st.idx];
+  lockOpts();
+  const chosen = q.o[st.optOrder[k]];
+  const correctK = st.optOrder.findIndex(oi => q.o[oi] === q.a);
+  document.getElementById('opt' + correctK).classList.add('correct');
+  const ok = chosen === q.a;
+  if (ok) st.right++;
+  else document.getElementById('opt' + k).classList.add('wrong');
+  bumpDay();
+  const note = document.getElementById('grNote');
+  note.textContent = '💡 ' + q.note;
+  note.style.display = 'block';
+  speak(q.q.replace('___', q.a).replace(/\(.*?\)/, '').trim());
+  setTimeout(() => {
+    st.idx++;
+    if (st.idx >= st.qs.length){
+      const pct = Math.round(st.right / st.qs.length * 100);
+      setStat('grammar', 'grammar', pct);
+      app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
+        <div class="big-card">
+          <div class="score">${pct}%</div>
+          <div class="pl" style="font-size:20px">Грамматика: ${st.right} из ${st.qs.length}</div>
+          <div class="btns">
+            <button onclick="go('grammar')">Ещё раз</button>
+            <button class="primary" onclick="go('home')">К урокам</button>
+          </div>
+        </div>`;
+      return;
+    }
+    renderGrammar();
+  }, ok ? 1800 : 2800);
+}
+
 /* ============================================================ */
 
 renderAutoToggle();
 go('home');
+
+if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polski dla trenera — с нуля до A2</title>
+<style>
+  :root{
+    --bg:#f6f3ee; --card:#ffffff; --ink:#26221c; --muted:#8a8177;
+    --accent:#2e7d4f; --accent2:#d96c2c; --line:#e7e0d6;
+    --good:#2e7d4f; --bad:#c0392b; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:10px}
+  header h1{font-size:17px;margin:0;flex:1;cursor:pointer}
+  header h1 span{color:var(--accent)}
+  .toggle{font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+  .toggle.on{color:var(--accent);font-weight:600}
+  main{max-width:760px;margin:0 auto;padding:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;transition:transform .08s}
+  .card:hover{transform:translateY(-2px)}
+  .card .emoji{font-size:26px}
+  .card h3{margin:8px 0 4px;font-size:15px}
+  .card p{margin:0;font-size:13px;color:var(--muted)}
+  .bar{height:6px;background:var(--line);border-radius:3px;margin-top:10px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+  .crumbs{font-size:13px;color:var(--muted);margin-bottom:10px;cursor:pointer}
+  .crumbs:hover{color:var(--accent)}
+  .modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+  .lesson-head h2{margin:4px 0 2px}
+  .lesson-head p{margin:0;color:var(--muted);font-size:14px}
+  .grammar{background:#fdf9f0;border:1px solid #eadfc8;border-radius:var(--radius);padding:14px 16px;margin-top:16px;font-size:14px}
+  .grammar h4{margin:0 0 8px;color:var(--accent2)}
+  .grammar table{border-collapse:collapse;margin:6px 0}
+  .grammar td{padding:2px 12px 2px 0}
+  .big-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 20px;text-align:center;margin-top:14px}
+  .pl{font-size:26px;font-weight:700}
+  .tr{font-size:14px;color:var(--muted);margin-top:4px}
+  .ru{font-size:19px;color:var(--accent);margin-top:12px;min-height:26px}
+  .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  button{font:inherit;border:none;border-radius:12px;padding:10px 18px;cursor:pointer;background:var(--line);color:var(--ink)}
+  button.primary{background:var(--accent);color:#fff}
+  button.warn{background:var(--accent2);color:#fff}
+  button.ghost{background:transparent;border:1px solid var(--line)}
+  button:disabled{opacity:.45;cursor:default}
+  .speak-btn{font-size:20px;background:transparent;border:1px solid var(--line);border-radius:50%;width:46px;height:46px;padding:0}
+  .speak-big{font-size:34px;background:var(--accent);color:#fff;border-radius:50%;width:78px;height:78px;padding:0}
+  .meta{font-size:13px;color:var(--muted);margin-top:10px}
+  .opt{display:block;width:100%;text-align:left;margin-top:8px;background:var(--card);border:1px solid var(--line);font-size:16px;padding:11px 14px}
+  .opt.correct{background:#e6f4ec;border-color:var(--good);color:var(--good);font-weight:600}
+  .opt.wrong{background:#faeae7;border-color:var(--bad);color:var(--bad)}
+  .tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px;min-height:44px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:17px;cursor:pointer}
+  .tile.used{opacity:.25;pointer-events:none}
+  .answer-zone{border:2px dashed var(--line);border-radius:12px;min-height:52px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:8px;margin-top:14px}
+  .answer-zone .tile{background:#eef6f0;border-color:var(--accent)}
+  .mic{width:84px;height:84px;border-radius:50%;font-size:36px;background:var(--accent2);color:#fff;box-shadow:0 4px 14px rgba(217,108,44,.35)}
+  .mic.listening{background:var(--bad);animation:pulse 1.2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(192,57,43,.5)}70%{box-shadow:0 0 0 18px rgba(192,57,43,0)}100%{box-shadow:0 0 0 0 rgba(192,57,43,0)}}
+  .verdict{font-size:17px;font-weight:600;margin-top:14px;min-height:24px}
+  .verdict.good{color:var(--good)} .verdict.bad{color:var(--bad)}
+  .heard{font-size:14px;color:var(--muted);margin-top:6px;min-height:20px}
+  .alpha{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-top:12px}
+  .alpha .card{padding:10px;text-align:center}
+  .alpha .l{font-size:22px;font-weight:700}
+  .alpha .s{font-size:12px;color:var(--muted)}
+  .note{background:#eef3fb;border:1px solid #d5e0f3;border-radius:var(--radius);padding:12px 16px;font-size:13px;color:#3b5578;margin-top:16px}
+  .score{font-size:40px;font-weight:800;color:var(--accent)}
+  input.answer{font:inherit;font-size:18px;width:100%;max-width:420px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;margin-top:14px;text-align:center}
+  input.answer:focus{outline:2px solid var(--accent)}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .pair{width:100%;text-align:center;background:var(--card);border:1px solid var(--line);font-size:15px;padding:11px 8px;margin-top:0}
+  .pair.sel{outline:2px solid var(--accent2);background:#fdf3ec}
+  .pair.done{opacity:.28;pointer-events:none;background:#e6f4ec}
+  .pair.err{background:#faeae7;border-color:var(--bad)}
+  .mistakes{text-align:left;margin-top:16px;font-size:14px}
+  .mistakes div{padding:6px 0;border-bottom:1px dashed var(--line)}
+  .gap-phrase{font-size:23px;font-weight:700;letter-spacing:.3px}
+  .exam-card{background:linear-gradient(135deg,#2e7d4f,#1f5c39);color:#fff}
+  .exam-card p,.exam-card h3{color:#fff}
+  .badge{display:inline-block;font-size:11px;background:var(--accent2);color:#fff;border-radius:8px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+</style>
+</head>
+<body>
+<header>
+  <h1 onclick="go('home')">🎾 Polski <span>dla trenera</span></h1>
+  <span class="toggle" id="autoTts" onclick="toggleAuto()">🔊 автоозвучка</span>
+</header>
+<main id="app"></main>
+<footer>Работает офлайн, кроме озвучки Google-голосом и распознавания речи. Лучше всего — в Chrome.</footer>
+
+<script>
+'use strict';
+
+/* ============================================================
+   ДАННЫЕ: 12 уроков, ~340 слов и фраз
+   ============================================================ */
+
+const LESSONS = [
+{
+  id:'l1', emoji:'👋', title:'Знакомство и вежливость',
+  desc:'Приветствия, о себе, переспросить',
+  grammar:'<h4>Структура: być (быть) и mieć (иметь)</h4>«Быть» в настоящем времени не пропускается: <b>Jestem trenerem</b> — «я (есть) тренер».<table><tr><td><b>jestem / mam</b></td><td>я есть / имею</td></tr><tr><td><b>jesteś / masz</b></td><td>ты есть / имеешь</td></tr><tr><td><b>jest / ma</b></td><td>он-она есть / имеет</td></tr><tr><td><b>jesteśmy / mamy</b></td><td>мы есть / имеем</td></tr></table>Вопрос — частица <b>czy</b> в начале: <b>Czy masz czas?</b> «У тебя есть время?». Русское «у меня есть» = польское «я имею»: <b>Mam samochód</b>.',
+  words:[
+    {pl:'Dzień dobry', ru:'Добрый день (утро)'},
+    {pl:'Cześć', ru:'Привет / Пока'},
+    {pl:'Dobry wieczór', ru:'Добрый вечер'},
+    {pl:'Dobranoc', ru:'Спокойной ночи'},
+    {pl:'Do widzenia', ru:'До свидания'},
+    {pl:'Na razie', ru:'Пока (до скорого)'},
+    {pl:'Dziękuję bardzo', ru:'Большое спасибо'},
+    {pl:'Nie ma za co', ru:'Не за что'},
+    {pl:'Proszę', ru:'Пожалуйста / Прошу'},
+    {pl:'Przepraszam', ru:'Извините'},
+    {pl:'Tak', ru:'Да'},
+    {pl:'Nie', ru:'Нет'},
+    {pl:'Może', ru:'Может быть'},
+    {pl:'Oczywiście', ru:'Конечно'},
+    {pl:'Mam na imię Julia', ru:'Меня зовут Юля'},
+    {pl:'Jak masz na imię?', ru:'Как тебя зовут?'},
+    {pl:'Jestem trenerem tenisa', ru:'Я тренер по теннису'},
+    {pl:'Miło mi cię poznać', ru:'Приятно познакомиться'},
+    {pl:'Jak się masz?', ru:'Как дела?'},
+    {pl:'Co słychać?', ru:'Что слышно? / Как жизнь?'},
+    {pl:'Dobrze, dziękuję', ru:'Хорошо, спасибо'},
+    {pl:'Wszystko w porządku', ru:'Всё в порядке'},
+    {pl:'Skąd jesteś?', ru:'Откуда ты?'},
+    {pl:'Mieszkam w Polsce', ru:'Я живу в Польше'},
+    {pl:'Ile masz lat?', ru:'Сколько тебе лет?'},
+    {pl:'pan', ru:'господин (вежливое «вы» к мужчине)'},
+    {pl:'pani', ru:'госпожа (вежливое «вы» к женщине)'},
+    {pl:'Nie rozumiem', ru:'Я не понимаю'},
+    {pl:'Rozumiem', ru:'Понимаю'},
+    {pl:'Nie wiem', ru:'Я не знаю'},
+    {pl:'Proszę mówić wolniej', ru:'Говорите медленнее, пожалуйста'},
+    {pl:'Proszę powtórzyć', ru:'Повторите, пожалуйста'},
+    {pl:'Czy mówisz po angielsku?', ru:'Ты говоришь по-английски?'},
+    {pl:'Mówię trochę po polsku', ru:'Я немного говорю по-польски'},
+    {pl:'Powodzenia', ru:'Удачи'},
+  ]
+},
+{
+  id:'l2', emoji:'🕒', title:'Числа и время',
+  desc:'Считать, называть время, как часто',
+  grammar:'<h4>Структура: время и частота</h4>«В котором часу» — предлог <b>o</b>: <b>o dziesiątej</b> — «в десять». «Через» — <b>za</b>: <b>za pięć minut</b> — «через пять минут». «Полшестого» — <b>wpół do szóstej</b>.<br>Наречия частоты ставятся перед глаголом, как в русском: <b>zawsze</b> (всегда), <b>często</b> (часто), <b>czasami</b> (иногда), <b>nigdy</b> (никогда).<br>Ударение — почти всегда на <b>предпоследний</b> слог: go-DZI-na, mi-NU-ta.',
+  words:[
+    {pl:'jeden', ru:'один'},
+    {pl:'dwa', ru:'два'},
+    {pl:'trzy', ru:'три'},
+    {pl:'cztery', ru:'четыре'},
+    {pl:'pięć', ru:'пять'},
+    {pl:'sześć', ru:'шесть'},
+    {pl:'siedem', ru:'семь'},
+    {pl:'osiem', ru:'восемь'},
+    {pl:'dziewięć', ru:'девять'},
+    {pl:'dziesięć', ru:'десять'},
+    {pl:'jedenaście', ru:'одиннадцать'},
+    {pl:'dwanaście', ru:'двенадцать'},
+    {pl:'piętnaście', ru:'пятнадцать'},
+    {pl:'dwadzieścia', ru:'двадцать'},
+    {pl:'trzydzieści', ru:'тридцать'},
+    {pl:'pięćdziesiąt', ru:'пятьдесят'},
+    {pl:'sto', ru:'сто'},
+    {pl:'godzina', ru:'час'},
+    {pl:'minuta', ru:'минута'},
+    {pl:'pół godziny', ru:'полчаса'},
+    {pl:'kwadrans', ru:'четверть часа'},
+    {pl:'dzień', ru:'день'},
+    {pl:'tydzień', ru:'неделя'},
+    {pl:'miesiąc', ru:'месяц'},
+    {pl:'rok', ru:'год'},
+    {pl:'teraz', ru:'сейчас'},
+    {pl:'później', ru:'позже'},
+    {pl:'wcześnie', ru:'рано'},
+    {pl:'późno', ru:'поздно'},
+    {pl:'zawsze', ru:'всегда'},
+    {pl:'nigdy', ru:'никогда'},
+    {pl:'często', ru:'часто'},
+    {pl:'czasami', ru:'иногда'},
+    {pl:'codziennie', ru:'каждый день'},
+    {pl:'Która jest godzina?', ru:'Который час?'},
+    {pl:'Jest piąta trzydzieści', ru:'Сейчас пять тридцать'},
+    {pl:'O której godzinie?', ru:'Во сколько?'},
+    {pl:'Za pięć minut', ru:'Через пять минут'},
+    {pl:'Ile to trwa?', ru:'Сколько это длится?'},
+    {pl:'To trwa dwie godziny', ru:'Это длится два часа'},
+  ]
+},
+{
+  id:'l3', emoji:'📅', title:'Расписание и договорённости',
+  desc:'Назначить, перенести, подтвердить тренировку',
+  grammar:'<h4>Структура: дни и договорённости</h4>«В какой день» — <b>w</b>: <b>w poniedziałek</b>, <b>we wtorek</b>. «Договориться НА» — <b>umówić się na</b>: <b>Umówmy się na jutro</b>.<br>Будущее о себе: <b>spóźnię się</b> — «опоздаю», <b>będę za pięć minut</b> — «буду через 5 минут».<br>Женская форма прошедшего времени — на <b>-łam</b>: <b>zapomniałam</b> — «я забыла» (мужчина скажет zapomniałem).',
+  words:[
+    {pl:'poniedziałek', ru:'понедельник'},
+    {pl:'wtorek', ru:'вторник'},
+    {pl:'środa', ru:'среда'},
+    {pl:'czwartek', ru:'четверг'},
+    {pl:'piątek', ru:'пятница'},
+    {pl:'sobota', ru:'суббота'},
+    {pl:'niedziela', ru:'воскресенье'},
+    {pl:'weekend', ru:'выходные'},
+    {pl:'dzisiaj', ru:'сегодня'},
+    {pl:'jutro', ru:'завтра'},
+    {pl:'pojutrze', ru:'послезавтра'},
+    {pl:'wczoraj', ru:'вчера'},
+    {pl:'rano', ru:'утром'},
+    {pl:'po południu', ru:'после полудня'},
+    {pl:'wieczorem', ru:'вечером'},
+    {pl:'spotkanie', ru:'встреча'},
+    {pl:'rezerwacja', ru:'бронь'},
+    {pl:'grafik', ru:'график, расписание'},
+    {pl:'wolny termin', ru:'свободное окно (слот)'},
+    {pl:'spóźnienie', ru:'опоздание'},
+    {pl:'punktualnie', ru:'вовремя, пунктуально'},
+    {pl:'numer telefonu', ru:'номер телефона'},
+    {pl:'Czy masz czas jutro?', ru:'У тебя есть время завтра?'},
+    {pl:'Umówmy się na jutro', ru:'Давай договоримся на завтра'},
+    {pl:'Pasuje mi środa', ru:'Мне подходит среда'},
+    {pl:'Nie pasuje mi ten termin', ru:'Мне не подходит это время'},
+    {pl:'Możemy przełożyć?', ru:'Можем перенести?'},
+    {pl:'Potwierdzam spotkanie', ru:'Подтверждаю встречу'},
+    {pl:'Odwołuję trening', ru:'Я отменяю тренировку'},
+    {pl:'Spóźnię się dziesięć minut', ru:'Я опоздаю на десять минут'},
+    {pl:'Będę za pięć minut', ru:'Буду через пять минут'},
+    {pl:'Przepraszam za spóźnienie', ru:'Извините за опоздание'},
+    {pl:'Nie szkodzi', ru:'Ничего страшного'},
+    {pl:'Zaczynamy punktualnie', ru:'Начинаем вовремя'},
+    {pl:'Zapisz mój numer', ru:'Запиши мой номер'},
+    {pl:'Zadzwoń do mnie', ru:'Позвони мне'},
+    {pl:'Do zobaczenia na korcie', ru:'Увидимся на корте'},
+  ]
+},
+{
+  id:'l4', emoji:'🎾', title:'Корт и инвентарь',
+  desc:'Всё, что лежит в сумке и на корте',
+  grammar:'<h4>Структура: род и «это»</h4>Указать на предмет: <b>To jest rakieta</b> — «Это ракетка». Род почти как в русском: слова на <b>-a</b> — женский (rakieta, piłka), на согласную — мужской (kort, mecz).<br>Множественное число: piłka → <b>piłki</b>, kort → <b>korty</b>.<br>«Мне нужно…» — <b>Potrzebuję</b> + родительный падеж: <b>Potrzebuję nowych piłek</b>.',
+  words:[
+    {pl:'kort tenisowy', ru:'теннисный корт'},
+    {pl:'kort kryty', ru:'крытый корт'},
+    {pl:'hala', ru:'зал, крытая арена'},
+    {pl:'rakieta', ru:'ракетка'},
+    {pl:'naciąg', ru:'струны (натяжка)'},
+    {pl:'owijka', ru:'намотка (грип)'},
+    {pl:'piłka', ru:'мяч'},
+    {pl:'piłki tenisowe', ru:'теннисные мячи'},
+    {pl:'kosz na piłki', ru:'корзина для мячей'},
+    {pl:'siatka', ru:'сетка'},
+    {pl:'linia końcowa', ru:'задняя линия'},
+    {pl:'linia serwisowa', ru:'линия подачи'},
+    {pl:'drabinka', ru:'лесенка (для разминки)'},
+    {pl:'pachołek', ru:'конус, фишка'},
+    {pl:'ręcznik', ru:'полотенце'},
+    {pl:'butelka wody', ru:'бутылка воды'},
+    {pl:'strój sportowy', ru:'спортивная форма'},
+    {pl:'buty tenisowe', ru:'теннисные кроссовки'},
+    {pl:'czapka', ru:'кепка'},
+    {pl:'trener', ru:'тренер'},
+    {pl:'zawodnik', ru:'игрок, спортсмен'},
+    {pl:'trening', ru:'тренировка'},
+    {pl:'mecz', ru:'матч'},
+    {pl:'gra', ru:'игра'},
+    {pl:'punkt', ru:'очко'},
+    {pl:'gem', ru:'гейм'},
+    {pl:'set', ru:'сет'},
+    {pl:'mączka ceglana', ru:'грунт (кирпичная крошка)'},
+    {pl:'kort twardy', ru:'хард (твёрдое покрытие)'},
+    {pl:'trawa', ru:'трава'},
+    {pl:'oświetlenie', ru:'освещение'},
+    {pl:'To jest kort tenisowy', ru:'Это теннисный корт'},
+    {pl:'Gdzie jest moja rakieta?', ru:'Где моя ракетка?'},
+    {pl:'Gdzie są piłki?', ru:'Где мячи?'},
+    {pl:'Potrzebuję nowych piłek', ru:'Мне нужны новые мячи'},
+    {pl:'Weź swoją rakietę', ru:'Возьми свою ракетку'},
+    {pl:'Siatka jest za wysoko', ru:'Сетка слишком высоко'},
+  ]
+},
+{
+  id:'l5', emoji:'📣', title:'Команды тренера и техника',
+  desc:'Что ты говоришь ученику на корте',
+  grammar:'<h4>Структура: повелительное наклонение</h4>Команды — краткие формы: <b>patrz!</b> (смотри), <b>uderz!</b> (ударь), <b>zegnij!</b> (согни), <b>wróć!</b> (вернись), <b>skup się!</b> (сосредоточься).<br>Вежливо или взрослому на «вы»: <b>proszę</b> + инфинитив — <b>Proszę patrzeć na piłkę</b>.<br>«Мы делаем» как команда группе: <b>Zaczynamy!</b>, <b>Zbieramy piłki!</b>',
+  words:[
+    {pl:'Zaczynamy!', ru:'Начинаем!'},
+    {pl:'rozgrzewka', ru:'разминка'},
+    {pl:'rozciąganie', ru:'растяжка'},
+    {pl:'praca nóg', ru:'работа ног'},
+    {pl:'zamach', ru:'замах'},
+    {pl:'pozycja gotowości', ru:'исходная позиция'},
+    {pl:'serwis', ru:'подача'},
+    {pl:'forhend', ru:'форхенд'},
+    {pl:'bekhend', ru:'бэкхенд'},
+    {pl:'wolej', ru:'удар с лёта'},
+    {pl:'smecz', ru:'смэш'},
+    {pl:'lob', ru:'свеча'},
+    {pl:'skrót', ru:'укороченный удар'},
+    {pl:'rotacja', ru:'вращение'},
+    {pl:'aut', ru:'аут'},
+    {pl:'Jeszcze raz', ru:'Ещё раз'},
+    {pl:'Świetnie!', ru:'Отлично!'},
+    {pl:'Brawo!', ru:'Молодец!'},
+    {pl:'Dobra robota', ru:'Хорошая работа'},
+    {pl:'Szybciej', ru:'Быстрее'},
+    {pl:'Wolniej', ru:'Медленнее'},
+    {pl:'Mocniej', ru:'Сильнее'},
+    {pl:'Wyżej', ru:'Выше'},
+    {pl:'Niżej', ru:'Ниже'},
+    {pl:'W lewo', ru:'Влево'},
+    {pl:'W prawo', ru:'Вправо'},
+    {pl:'Uwaga!', ru:'Внимание! / Осторожно!'},
+    {pl:'przerwa', ru:'перерыв'},
+    {pl:'Odpocznij', ru:'Отдохни'},
+    {pl:'Skup się', ru:'Сосредоточься'},
+    {pl:'Nie spiesz się', ru:'Не торопись'},
+    {pl:'Spróbuj jeszcze raz', ru:'Попробуй ещё раз'},
+    {pl:'Patrz na piłkę', ru:'Смотри на мяч'},
+    {pl:'Zegnij kolana', ru:'Согни колени'},
+    {pl:'Obróć biodra', ru:'Поверни бёдра'},
+    {pl:'Zrób krok do przodu', ru:'Сделай шаг вперёд'},
+    {pl:'Krok do tyłu', ru:'Шаг назад'},
+    {pl:'Ustaw się na linii', ru:'Встань на линию'},
+    {pl:'Podejdź do siatki', ru:'Подойди к сетке'},
+    {pl:'Wróć na linię', ru:'Вернись на линию'},
+    {pl:'Trzymaj rakietę mocno', ru:'Держи ракетку крепко'},
+    {pl:'Uderz piłkę mocniej', ru:'Ударь по мячу сильнее'},
+    {pl:'Podrzuć piłkę wyżej', ru:'Подбрось мяч выше'},
+    {pl:'Celuj w linię', ru:'Целься в линию'},
+    {pl:'Graj po prostej', ru:'Играй по прямой'},
+    {pl:'Zbieramy piłki', ru:'Собираем мячи'},
+    {pl:'Jeszcze pięć minut', ru:'Ещё пять минут'},
+    {pl:'Koniec treningu', ru:'Конец тренировки'},
+  ]
+},
+{
+  id:'l6', emoji:'🚗', title:'Машины и дорога',
+  desc:'Смолток про авто, заправка, сервис',
+  grammar:'<h4>Структура: творительный падеж</h4>«Ехать НА чём-то» и «быть КЕМ-то» — творительный падеж (<b>-em / -ą</b>): <b>Jadę samochodem</b>, <b>Jestem trenerem</b>.<br><b>jechać</b> — ехать сейчас, <b>jeździć</b> — ездить вообще: <b>Jakim samochodem jeździsz?</b><br>Прошедшее время от себя (женщина): <b>zaparkowałam</b> — «я припарковалась», <b>złapałam gumę</b> — «поймала прокол».',
+  words:[
+    {pl:'samochód', ru:'машина, автомобиль'},
+    {pl:'auto', ru:'авто'},
+    {pl:'kierowca', ru:'водитель'},
+    {pl:'silnik', ru:'двигатель'},
+    {pl:'skrzynia biegów', ru:'коробка передач'},
+    {pl:'hamulec', ru:'тормоз'},
+    {pl:'kierownica', ru:'руль'},
+    {pl:'koło', ru:'колесо'},
+    {pl:'opona', ru:'шина'},
+    {pl:'akumulator', ru:'аккумулятор'},
+    {pl:'klimatyzacja', ru:'кондиционер'},
+    {pl:'bagażnik', ru:'багажник'},
+    {pl:'benzyna', ru:'бензин'},
+    {pl:'stacja benzynowa', ru:'заправка'},
+    {pl:'parking', ru:'парковка'},
+    {pl:'prawo jazdy', ru:'водительские права'},
+    {pl:'ubezpieczenie', ru:'страховка'},
+    {pl:'przegląd', ru:'техосмотр'},
+    {pl:'warsztat', ru:'автосервис'},
+    {pl:'mandat', ru:'штраф'},
+    {pl:'prędkość', ru:'скорость'},
+    {pl:'korek', ru:'пробка (на дороге)'},
+    {pl:'skrzyżowanie', ru:'перекрёсток'},
+    {pl:'autostrada', ru:'автострада'},
+    {pl:'droga', ru:'дорога'},
+    {pl:'szybki samochód', ru:'быстрая машина'},
+    {pl:'nowy', ru:'новый'},
+    {pl:'stary', ru:'старый'},
+    {pl:'Jakim samochodem jeździsz?', ru:'На какой машине ты ездишь?'},
+    {pl:'Mam nowe auto', ru:'У меня новая машина'},
+    {pl:'Ile pali twoje auto?', ru:'Сколько расходует твоя машина?'},
+    {pl:'Jadę na trening samochodem', ru:'Я еду на тренировку на машине'},
+    {pl:'Mój samochód jest w warsztacie', ru:'Моя машина в сервисе'},
+    {pl:'Samochód nie odpala', ru:'Машина не заводится'},
+    {pl:'Złapałam gumę', ru:'Я поймала прокол (спустило колесо)'},
+    {pl:'Muszę zatankować', ru:'Мне нужно заправиться'},
+    {pl:'Stoję w korku', ru:'Я стою в пробке'},
+    {pl:'Zaparkowałam przed klubem', ru:'Я припарковалась перед клубом'},
+    {pl:'Gdzie jest parking?', ru:'Где парковка?'},
+    {pl:'Jak dojechać do klubu?', ru:'Как доехать до клуба?'},
+  ]
+},
+{
+  id:'l7', emoji:'🍽', title:'Еда и кафе',
+  desc:'Заказать, попросить счёт, что вкусно',
+  grammar:'<h4>Структура: poproszę + что (винительный)</h4>Универсальный заказ: <b>Poproszę</b> + блюдо: <b>Poproszę kawę z mlekiem</b>. Слова на -a меняют её на <b>-ę</b>: kawa → kaw<b>ę</b>, herbata → herbat<b>ę</b>, woda → wod<b>ę</b>.<br>«Люблю + делать» — <b>lubię</b> + инфинитив, «люблю + что-то» — тоже винительный: <b>Lubię polską kuchnię</b>.<br>О себе (женщина): <b>Jestem głodna</b> — «я голодна».',
+  words:[
+    {pl:'jedzenie', ru:'еда'},
+    {pl:'śniadanie', ru:'завтрак'},
+    {pl:'obiad', ru:'обед'},
+    {pl:'kolacja', ru:'ужин'},
+    {pl:'woda niegazowana', ru:'вода без газа'},
+    {pl:'kawa', ru:'кофе'},
+    {pl:'herbata', ru:'чай'},
+    {pl:'sok', ru:'сок'},
+    {pl:'mleko', ru:'молоко'},
+    {pl:'cukier', ru:'сахар'},
+    {pl:'chleb', ru:'хлеб'},
+    {pl:'ser', ru:'сыр'},
+    {pl:'mięso', ru:'мясо'},
+    {pl:'kurczak', ru:'курица'},
+    {pl:'ryba', ru:'рыба'},
+    {pl:'warzywa', ru:'овощи'},
+    {pl:'owoce', ru:'фрукты'},
+    {pl:'jabłko', ru:'яблоко'},
+    {pl:'zupa', ru:'суп'},
+    {pl:'pierogi', ru:'вареники (пероги)'},
+    {pl:'menu', ru:'меню'},
+    {pl:'rachunek', ru:'счёт'},
+    {pl:'napiwek', ru:'чаевые'},
+    {pl:'kelner', ru:'официант'},
+    {pl:'smaczne', ru:'вкусно'},
+    {pl:'Poproszę kawę z mlekiem', ru:'Кофе с молоком, пожалуйста'},
+    {pl:'Bez cukru, proszę', ru:'Без сахара, пожалуйста'},
+    {pl:'Co polecasz?', ru:'Что порекомендуешь?'},
+    {pl:'Jestem głodna', ru:'Я голодна'},
+    {pl:'Chce mi się pić', ru:'Мне хочется пить'},
+    {pl:'To jest pyszne', ru:'Это очень вкусно'},
+    {pl:'Czy to jest ostre?', ru:'Это острое?'},
+    {pl:'Nie jem mięsa', ru:'Я не ем мясо'},
+    {pl:'Na wynos czy na miejscu?', ru:'С собой или здесь?'},
+    {pl:'Poproszę rachunek', ru:'Счёт, пожалуйста'},
+    {pl:'Smacznego', ru:'Приятного аппетита'},
+  ]
+},
+{
+  id:'l8', emoji:'🛒', title:'Магазин и деньги',
+  desc:'Цены, оплата, скидки, размеры',
+  grammar:'<h4>Структура: платить чем, «слишком»</h4>«Платить ЧЕМ» — творительный: <b>Płacę kartą</b> — «плачу картой», <b>gotówką</b> — «наличными».<br>«Слишком» — <b>za</b> перед прилагательным: <b>za drogo</b> — «слишком дорого», <b>za mały</b> — «слишком маленький».<br>Cколько стоит: <b>Ile kosztuje…?</b> (одно) / <b>Ile kosztują…?</b> (много).',
+  words:[
+    {pl:'sklep', ru:'магазин'},
+    {pl:'zakupy', ru:'покупки'},
+    {pl:'cena', ru:'цена'},
+    {pl:'tani', ru:'дешёвый'},
+    {pl:'drogi', ru:'дорогой'},
+    {pl:'promocja', ru:'акция'},
+    {pl:'zniżka', ru:'скидка'},
+    {pl:'pieniądze', ru:'деньги'},
+    {pl:'złoty', ru:'злотый (валюта)'},
+    {pl:'karta', ru:'карта (банковская)'},
+    {pl:'gotówka', ru:'наличные'},
+    {pl:'kasa', ru:'касса'},
+    {pl:'paragon', ru:'чек'},
+    {pl:'reszta', ru:'сдача'},
+    {pl:'bankomat', ru:'банкомат'},
+    {pl:'koszyk', ru:'корзина'},
+    {pl:'rozmiar', ru:'размер'},
+    {pl:'prezent', ru:'подарок'},
+    {pl:'otwarte', ru:'открыто'},
+    {pl:'zamknięte', ru:'закрыто'},
+    {pl:'godziny otwarcia', ru:'часы работы'},
+    {pl:'Ile to kosztuje?', ru:'Сколько это стоит?'},
+    {pl:'Ile płacę?', ru:'Сколько с меня?'},
+    {pl:'Płacę kartą', ru:'Я плачу картой'},
+    {pl:'Płacę gotówką', ru:'Я плачу наличными'},
+    {pl:'Czy mogę zapłacić kartą?', ru:'Могу я заплатить картой?'},
+    {pl:'Czy jest zniżka?', ru:'Есть скидка?'},
+    {pl:'To za drogo', ru:'Это слишком дорого'},
+    {pl:'Poproszę paragon', ru:'Чек, пожалуйста'},
+    {pl:'Gdzie jest bankomat?', ru:'Где банкомат?'},
+    {pl:'Szukam prezentu', ru:'Я ищу подарок'},
+    {pl:'Czy mogę przymierzyć?', ru:'Можно примерить?'},
+    {pl:'To jest za duże', ru:'Это слишком большое'},
+    {pl:'To jest za małe', ru:'Это слишком маленькое'},
+    {pl:'O której zamykacie?', ru:'Во сколько вы закрываетесь?'},
+  ]
+},
+{
+  id:'l9', emoji:'🏠', title:'Дом и квартира',
+  desc:'Аренда, этажи, что сломалось',
+  grammar:'<h4>Структура: «на этаже», «не работает»</h4>«НА каком этаже» — <b>na</b> + предложный: <b>na trzecim piętrze</b> — «на третьем этаже». Внимание: польский <b>piętro</b> считается с нуля — parter (первый этаж) → pierwsze piętro (наш второй!).<br>«Не работает» — <b>nie działa</b>: <b>Nie działa ogrzewanie</b>.<br>«Я снимаю» — <b>wynajmuję</b>, «я потеряла» — <b>zgubiłam</b>.',
+  words:[
+    {pl:'mieszkanie', ru:'квартира'},
+    {pl:'dom', ru:'дом'},
+    {pl:'pokój', ru:'комната'},
+    {pl:'kuchnia', ru:'кухня'},
+    {pl:'łazienka', ru:'ванная'},
+    {pl:'balkon', ru:'балкон'},
+    {pl:'drzwi', ru:'дверь'},
+    {pl:'okno', ru:'окно'},
+    {pl:'klucz', ru:'ключ'},
+    {pl:'piętro', ru:'этаж'},
+    {pl:'parter', ru:'первый (нулевой) этаж'},
+    {pl:'winda', ru:'лифт'},
+    {pl:'czynsz', ru:'квартплата, аренда'},
+    {pl:'umowa', ru:'договор'},
+    {pl:'właściciel', ru:'владелец, арендодатель'},
+    {pl:'sąsiad', ru:'сосед'},
+    {pl:'meble', ru:'мебель'},
+    {pl:'lodówka', ru:'холодильник'},
+    {pl:'pralka', ru:'стиральная машина'},
+    {pl:'ogrzewanie', ru:'отопление'},
+    {pl:'prąd', ru:'электричество'},
+    {pl:'rachunki', ru:'счета (коммуналка)'},
+    {pl:'Wynajmuję mieszkanie', ru:'Я снимаю квартиру'},
+    {pl:'Ile kosztuje czynsz?', ru:'Сколько стоит аренда?'},
+    {pl:'Mieszkam na trzecim piętrze', ru:'Я живу на третьем этаже'},
+    {pl:'Nie działa ogrzewanie', ru:'Не работает отопление'},
+    {pl:'Nie ma ciepłej wody', ru:'Нет горячей воды'},
+    {pl:'Zgubiłam klucze', ru:'Я потеряла ключи'},
+    {pl:'Czy może pan to naprawić?', ru:'Вы можете это починить?'},
+    {pl:'Szukam mieszkania', ru:'Я ищу квартиру'},
+  ]
+},
+{
+  id:'l10', emoji:'🏥', title:'Здоровье и тело',
+  desc:'Части тела, травмы, самочувствие — важно тренеру!',
+  grammar:'<h4>Структура: boli mnie…</h4>«У меня болит…» — <b>Boli mnie</b> + что (именительный): <b>Boli mnie kolano</b>. Множественное: <b>Bolą mnie plecy</b> — «болит спина».<br>«У тебя болит?» — <b>Czy boli cię…?</b><br>«Чувствую себя» — <b>czuję się</b>: dobrze / źle / lepiej (лучше).<br>О себе (женщина): <b>jestem chora</b> — «я болею», <b>skręciłam kostkę</b> — «я подвернула лодыжку».',
+  words:[
+    {pl:'zdrowie', ru:'здоровье'},
+    {pl:'głowa', ru:'голова'},
+    {pl:'ręka', ru:'рука'},
+    {pl:'noga', ru:'нога'},
+    {pl:'kolano', ru:'колено'},
+    {pl:'kostka', ru:'лодыжка'},
+    {pl:'stopa', ru:'стопа'},
+    {pl:'ramię', ru:'плечо'},
+    {pl:'łokieć', ru:'локоть'},
+    {pl:'nadgarstek', ru:'запястье'},
+    {pl:'plecy', ru:'спина'},
+    {pl:'brzuch', ru:'живот'},
+    {pl:'ból', ru:'боль'},
+    {pl:'kontuzja', ru:'травма'},
+    {pl:'lekarz', ru:'врач'},
+    {pl:'apteka', ru:'аптека'},
+    {pl:'lekarstwo', ru:'лекарство'},
+    {pl:'przeziębienie', ru:'простуда'},
+    {pl:'gorączka', ru:'температура, жар'},
+    {pl:'masaż', ru:'массаж'},
+    {pl:'fizjoterapeuta', ru:'физиотерапевт'},
+    {pl:'Boli mnie głowa', ru:'У меня болит голова'},
+    {pl:'Boli mnie kolano', ru:'У меня болит колено'},
+    {pl:'Bolą mnie plecy', ru:'У меня болит спина'},
+    {pl:'Czy boli cię ręka?', ru:'У тебя болит рука?'},
+    {pl:'Skręciłam kostkę', ru:'Я подвернула лодыжку'},
+    {pl:'Jestem chora', ru:'Я болею'},
+    {pl:'Mam gorączkę', ru:'У меня температура'},
+    {pl:'Czuję się dobrze', ru:'Я чувствую себя хорошо'},
+    {pl:'Czuję się źle', ru:'Я чувствую себя плохо'},
+    {pl:'Już mi lepiej', ru:'Мне уже лучше'},
+    {pl:'Nic mi nie jest', ru:'Со мной всё в порядке'},
+    {pl:'Potrzebuję przerwy', ru:'Мне нужен перерыв'},
+    {pl:'Rozgrzej się dobrze', ru:'Хорошо разомнись'},
+    {pl:'Proszę wezwać karetkę', ru:'Вызовите скорую, пожалуйста'},
+  ]
+},
+{
+  id:'l11', emoji:'🗺', title:'Город и транспорт',
+  desc:'Спросить дорогу, объяснить, доехать',
+  grammar:'<h4>Структура: iść vs jechać</h4><b>iść</b> — идти пешком, <b>jechać</b> — ехать: <b>Jak dojść do centrum?</b> (пешком) / <b>Jak dojechać do klubu?</b> (транспортом).<br>Вежливая просьба-инструкция: <b>proszę</b> + инфинитив: <b>Proszę iść prosto</b> — «идите прямо», <b>Proszę skręcić w lewo</b> — «поверните налево».<br>«ЕДУ НА трамвае» — творительный: <b>jadę tramwajem</b>.',
+  words:[
+    {pl:'miasto', ru:'город'},
+    {pl:'ulica', ru:'улица'},
+    {pl:'centrum', ru:'центр'},
+    {pl:'rynek', ru:'рыночная площадь'},
+    {pl:'park', ru:'парк'},
+    {pl:'klub sportowy', ru:'спортивный клуб'},
+    {pl:'przystanek', ru:'остановка'},
+    {pl:'autobus', ru:'автобус'},
+    {pl:'tramwaj', ru:'трамвай'},
+    {pl:'pociąg', ru:'поезд'},
+    {pl:'dworzec', ru:'вокзал'},
+    {pl:'bilet', ru:'билет'},
+    {pl:'mapa', ru:'карта (города)'},
+    {pl:'prosto', ru:'прямо'},
+    {pl:'w lewo', ru:'налево'},
+    {pl:'w prawo', ru:'направо'},
+    {pl:'blisko', ru:'близко'},
+    {pl:'daleko', ru:'далеко'},
+    {pl:'obok', ru:'рядом'},
+    {pl:'naprzeciwko', ru:'напротив'},
+    {pl:'tutaj', ru:'здесь'},
+    {pl:'tam', ru:'там'},
+    {pl:'Przepraszam, gdzie jest przystanek?', ru:'Извините, где остановка?'},
+    {pl:'Jak dojść do centrum?', ru:'Как дойти до центра?'},
+    {pl:'Proszę iść prosto', ru:'Идите прямо'},
+    {pl:'Proszę skręcić w lewo', ru:'Поверните налево'},
+    {pl:'To jest pięć minut pieszo', ru:'Это пять минут пешком'},
+    {pl:'To jest daleko stąd?', ru:'Это далеко отсюда?'},
+    {pl:'Jadę tramwajem', ru:'Я еду на трамвае'},
+    {pl:'Gdzie kupię bilet?', ru:'Где мне купить билет?'},
+    {pl:'Zgubiłam się', ru:'Я заблудилась'},
+    {pl:'Pokażę ci na mapie', ru:'Я покажу тебе на карте'},
+  ]
+},
+{
+  id:'l12', emoji:'💬', title:'Бытовые вопросы и ответы',
+  desc:'Семья, о себе, поддержать разговор',
+  grammar:'<h4>Структура: вопросительные слова</h4><b>co</b> — что, <b>gdzie</b> — где, <b>kiedy</b> — когда, <b>jak</b> — как, <b>skąd</b> — откуда, <b>dlaczego</b> — почему, <b>czym</b> — чем.<br>Глаголы «я/ты»: prac<b>uję</b> / prac<b>ujesz</b>, lub<b>ię</b> / lub<b>isz</b>, mieszk<b>am</b> / mieszk<b>asz</b>. Местоимения ja/ty обычно опускаются — как в русском «работаю в клубе».<br><b>Interesuję się sportem</b> — «интересуюсь спортом» (творительный).',
+  words:[
+    {pl:'rodzina', ru:'семья'},
+    {pl:'mąż', ru:'муж'},
+    {pl:'żona', ru:'жена'},
+    {pl:'syn', ru:'сын'},
+    {pl:'córka', ru:'дочь'},
+    {pl:'dzieci', ru:'дети'},
+    {pl:'brat', ru:'брат'},
+    {pl:'siostra', ru:'сестра'},
+    {pl:'rodzice', ru:'родители'},
+    {pl:'przyjaciel', ru:'друг'},
+    {pl:'praca', ru:'работа'},
+    {pl:'Co robisz?', ru:'Что ты делаешь?'},
+    {pl:'Gdzie pracujesz?', ru:'Где ты работаешь?'},
+    {pl:'Pracuję w klubie tenisowym', ru:'Я работаю в теннисном клубе'},
+    {pl:'Co lubisz robić?', ru:'Что ты любишь делать?'},
+    {pl:'Lubię grać w tenisa', ru:'Я люблю играть в теннис'},
+    {pl:'Czym się interesujesz?', ru:'Чем ты интересуешься?'},
+    {pl:'Interesuję się sportem', ru:'Я интересуюсь спортом'},
+    {pl:'Masz rodzinę?', ru:'У тебя есть семья?'},
+    {pl:'Mam córkę', ru:'У меня есть дочь'},
+    {pl:'Skąd przyjechałaś?', ru:'Откуда ты приехала?'},
+    {pl:'Jak długo mieszkasz w Polsce?', ru:'Как давно ты живёшь в Польше?'},
+    {pl:'Od roku', ru:'Уже год'},
+    {pl:'Podoba mi się tutaj', ru:'Мне здесь нравится'},
+    {pl:'Jaka będzie pogoda?', ru:'Какая будет погода?'},
+    {pl:'Pada deszcz', ru:'Идёт дождь'},
+    {pl:'Jest gorąco', ru:'Жарко'},
+    {pl:'Jest zimno', ru:'Холодно'},
+    {pl:'Możesz mi pomóc?', ru:'Можешь мне помочь?'},
+    {pl:'Pomogę ci', ru:'Я тебе помогу'},
+    {pl:'Co to znaczy?', ru:'Что это значит?'},
+    {pl:'Jak to powiedzieć po polsku?', ru:'Как это сказать по-польски?'},
+    {pl:'Mówisz za szybko', ru:'Ты говоришь слишком быстро'},
+    {pl:'Wszystko jasne', ru:'Всё понятно'},
+    {pl:'Nie ma problemu', ru:'Нет проблем'},
+    {pl:'Świetny pomysł', ru:'Отличная идея'},
+    {pl:'Masz rację', ru:'Ты прав(а)'},
+    {pl:'Naprawdę?', ru:'Правда?'},
+    {pl:'Żartuję', ru:'Я шучу'},
+    {pl:'Trzymaj się', ru:'Держись / береги себя'},
+  ]
+},
+];
+
+const ALL_WORDS = LESSONS.flatMap(l => l.words);
+
+const DIGRAPHS = [
+  ['sz','ш','szybko — быстро'],
+  ['cz','ч','czas — время'],
+  ['rz','ж (= ż)','dobrze — хорошо'],
+  ['ch','х (= h)','chcę — хочу'],
+  ['dz','дз','bardzo — очень'],
+  ['dż','дж','dżem — джем'],
+  ['dź','джь','dźwięk — звук'],
+];
+const LETTERS = [
+  ['ą','он (в нос)'],['ę','эн (в нос)'],['ó','у'],['y','ы'],['e','э'],
+  ['c','ц'],['w','в'],['ł','ў (как англ. w)'],['l','ль'],['j','й'],
+  ['ż','ж'],['ź','зь'],['ś','щь'],['ć','чь'],['ń','нь'],
+];
+
+/* ============================================================
+   ТРАНСКРИПЦИЯ (примерная)
+   ============================================================ */
+
+/* Мягкие согласные dzi/ci/si/zi/ni + гласная дают йотированную гласную: dzie=дже, nie=не, cia=ча */
+const SOFT_CONS = [['dzi','дж'],['ci','ч'],['si','щ'],['zi','ж'],['ni','н']];
+const SOFT_VOWELS = [['ą','ён'],['ę(?=$|[\\s.,!?])','е'],['ę','ен'],['a','я'],['e','е'],['o','ё'],['ó','ю'],['u','ю']];
+const TRANSLIT = (() => {
+  const rules = [
+    [/szcz/g,'щ'],[/sz/g,'ш'],[/cz/g,'ч'],[/rz/g,'ж'],
+    [/dż/g,'дж'],[/dź/g,'джь'],
+  ];
+  for (const [lat, cyr] of SOFT_CONS){
+    for (const [lv, cv] of SOFT_VOWELS) rules.push([new RegExp(lat + lv, 'g'), cyr + cv]);
+    rules.push([new RegExp(lat, 'g'), cyr + 'и']);
+  }
+  rules.push(
+    [/dz/g,'дз'],[/ch/g,'х'],
+    [/ż/g,'ж'],[/ź/g,'зь'],[/ś/g,'щ'],[/ć/g,'чь'],[/ń/g,'нь'],
+    [/ł/g,'ў'],[/w/g,'в'],
+    [/ją/g,'ён'],[/ję(?=$|[\s.,!?])/g,'е'],[/ję/g,'ен'],[/ja/g,'я'],[/je/g,'е'],[/jo/g,'ё'],[/ju/g,'ю'],[/jó/g,'ю'],[/j/g,'й'],
+    [/ią/g,'ён'],[/ię(?=$|[\s.,!?])/g,'е'],[/ię/g,'ен'],[/ia/g,'я'],[/ie/g,'е'],[/io/g,'ё'],[/iu/g,'ю'],[/ió/g,'ю'],
+    [/lą/g,'лён'],[/lę(?=$|[\s.,!?])/g,'ле'],[/lę/g,'лен'],[/la/g,'ля'],[/le/g,'ле'],[/lo/g,'лё'],[/lu/g,'лю'],[/ló/g,'лю'],[/li/g,'ли'],[/l/g,'ль'],
+    [/ą/g,'он'],[/ę(?=$|[\s.,!?])/g,'э'],[/ę/g,'эн'],
+    [/ó/g,'у'],[/y/g,'ы'],[/c/g,'ц'],[/h/g,'х'],[/e/g,'э'],
+    [/a/g,'а'],[/b/g,'б'],[/d/g,'д'],[/f/g,'ф'],[/g/g,'г'],[/i/g,'и'],[/k/g,'к'],
+    [/m/g,'м'],[/n/g,'н'],[/o/g,'о'],[/p/g,'п'],[/r/g,'р'],[/s/g,'с'],[/t/g,'т'],
+    [/u/g,'у'],[/z/g,'з']
+  );
+  return rules;
+})();
+function translit(pl){
+  let s = pl.toLowerCase();
+  for (const [re, sub] of TRANSLIT) s = s.replace(re, sub);
+  return s;
+}
+
+/* ============================================================
+   ОЗВУЧКА И РАСПОЗНАВАНИЕ
+   ============================================================ */
+
+let plVoice = null;
+function pickVoice(){
+  const vs = speechSynthesis.getVoices();
+  plVoice = vs.find(v => v.lang && v.lang.toLowerCase().startsWith('pl')) || null;
+}
+if ('speechSynthesis' in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+function speak(text){
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'pl-PL';
+  if (plVoice) u.voice = plVoice;
+  u.rate = 0.85;
+  speechSynthesis.speak(u);
+}
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function levenshtein(a, b){
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({length: n+1}, (_, i) => i);
+  for (let i = 1; i <= m; i++){
+    const cur = [i];
+    for (let j = 1; j <= n; j++){
+      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+function norm(s){
+  return s.toLowerCase().replace(/[.,!?ʼ'"«»-]/g,'').replace(/\s+/g,' ').trim();
+}
+const DIA = {'ą':'a','ć':'c','ę':'e','ł':'l','ń':'n','ó':'o','ś':'s','ź':'z','ż':'z'};
+function stripDia(s){ return s.replace(/[ąćęłńóśźż]/g, ch => DIA[ch]); }
+function similarity(a, b){
+  a = norm(a); b = norm(b);
+  if (!a || !b) return 0;
+  return 1 - levenshtein(a, b) / Math.max(a.length, b.length);
+}
+function tokens(s){ return s.replace(/[.,!?«»]/g,'').trim().split(/\s+/); }
+function isPhrase(pl){ return tokens(pl).length >= 3; }
+
+/* ============================================================
+   ПРОГРЕСС
+   ============================================================ */
+
+const LS_KEY = 'polskiTrener';
+const MODES = ['learn','quiz','listen','build','match','speak'];
+function loadProgress(){
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e){ return {}; }
+}
+function saveProgress(p){ localStorage.setItem(LS_KEY, JSON.stringify(p)); }
+function setStat(lessonId, mode, value){
+  const p = loadProgress();
+  p[lessonId] = p[lessonId] || {};
+  p[lessonId][mode] = Math.max(p[lessonId][mode] || 0, Math.min(100, Math.round(value)));
+  saveProgress(p);
+}
+function getStat(lessonId, mode){
+  return (loadProgress()[lessonId] || {})[mode] || 0;
+}
+function lessonPct(lesson){
+  const s = loadProgress()[lesson.id] || {};
+  return Math.round(MODES.reduce((a, m) => a + (s[m] || 0), 0) / MODES.length);
+}
+
+let autoTts = localStorage.getItem('polskiTrenerAuto') !== 'off';
+function toggleAuto(){
+  autoTts = !autoTts;
+  localStorage.setItem('polskiTrenerAuto', autoTts ? 'on' : 'off');
+  renderAutoToggle();
+}
+function renderAutoToggle(){
+  document.getElementById('autoTts').className = 'toggle' + (autoTts ? ' on' : '');
+}
+
+/* ============================================================
+   НАВИГАЦИЯ И УТИЛИТЫ
+   ============================================================ */
+
+const app = document.getElementById('app');
+let state = {};
+
+function go(view, lessonId, mode){
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  state = {view, lessonId, mode};
+  if (view === 'home') renderHome();
+  else if (view === 'alphabet') renderAlphabet();
+  else if (view === 'lesson') renderLesson(lessonId);
+  else if (view === 'mode') startMode(lessonId, mode);
+  else if (view === 'exam') startExam();
+}
+function findLesson(id){ return LESSONS.find(l => l.id === id); }
+function crumbs(lesson){
+  if (!lesson) return `<div class="crumbs" onclick="go('home')">← На главную</div>`;
+  return `<div class="crumbs" onclick="go('lesson','${lesson.id}')">← ${lesson.emoji} ${lesson.title}</div>`;
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function esc(s){ return s.replace(/"/g,'&quot;'); }
+
+/* Обманки: самые похожие на правильный ответ слова из пула */
+function distractors(w, pool, field, k){
+  const seen = new Set([w[field]]);
+  const cands = pool.filter(x => {
+    if (x === w || seen.has(x[field])) return false;
+    seen.add(x[field]);
+    return true;
+  });
+  cands.sort((a, b) => similarity(b[field], w[field]) - similarity(a[field], w[field]));
+  return shuffle(cands.slice(0, Math.max(k * 2, 8))).slice(0, k);
+}
+
+/* ============================================================
+   ГЛАВНАЯ И АЛФАВИТ
+   ============================================================ */
+
+function renderHome(){
+  const total = ALL_WORDS.length;
+  const cards = LESSONS.map(l => `
+    <div class="card" onclick="go('lesson','${l.id}')">
+      <div class="emoji">${l.emoji}</div>
+      <h3>${l.title}</h3>
+      <p>${l.desc} · ${l.words.length} фраз</p>
+      <div class="bar"><i style="width:${lessonPct(l)}%"></i></div>
+    </div>`).join('');
+  const examBest = getStat('exam', 'exam');
+  app.innerHTML = `
+    <div class="card" onclick="go('alphabet')" style="margin-bottom:12px">
+      <div class="emoji">🔤</div>
+      <h3>Сначала: как читать по-польски</h3>
+      <p>Буквы, диграфы (sz, cz, rz…) и ударение — 5 минут, и можно читать всё</p>
+    </div>
+    <div class="grid">${cards}</div>
+    <div class="card exam-card" style="margin-top:12px" onclick="go('exam')">
+      <div class="emoji">🏆</div>
+      <h3>Экзамен: всё вперемешку</h3>
+      <p>30 вопросов всех типов из всех уроков (${total} слов). Лучший результат: ${examBest ? examBest + '%' : '—'}</p>
+    </div>
+    <div class="note">В каждом уроке 6 режимов: <b>учить</b> (карточки), <b>тест</b> (20 смешанных вопросов: перевод туда-обратно, на слух, впечатать слово, вставить пропуск), <b>аудирование</b> 🎧, <b>собери фразу</b> (с лишними словами-обманками), <b>пары</b> 🔗 и <b>говорение</b> 🎙 с проверкой через микрофон.</div>`;
+}
+
+function renderAlphabet(){
+  const dig = DIGRAPHS.map(([d, s, ex]) => `
+    <div class="card" onclick="speak('${esc(ex.split(' — ')[0])}')">
+      <div class="l">${d}</div><div class="s">${s}</div>
+      <div class="s" style="margin-top:6px">🔊 ${ex}</div>
+    </div>`).join('');
+  const let_ = LETTERS.map(([l, s]) => `
+    <div class="card" onclick="speak('${l}')">
+      <div class="l">${l}</div><div class="s">${s}</div>
+    </div>`).join('');
+  app.innerHTML = `
+    <div class="crumbs" onclick="go('home')">← На главную</div>
+    <h2>🔤 Как читать по-польски</h2>
+    <p>Польский читается «как пишется», нужно выучить лишь несколько правил. Нажми на карточку — услышишь звук.</p>
+    <h3>Сочетания букв (самое важное)</h3>
+    <div class="alpha">${dig}</div>
+    <h3 style="margin-top:20px">Буквы, которые читаются не как ожидаешь</h3>
+    <div class="alpha">${let_}</div>
+    <div class="grammar" style="margin-top:20px">
+      <h4>Ударение</h4>
+      Почти всегда на <b>предпоследний слог</b>: ra-KIE-ta, tre-NER, dzię-KU-ję. Это правило работает в 99% слов.
+    </div>`;
+}
+
+/* ============================================================
+   УРОК: МЕНЮ РЕЖИМОВ
+   ============================================================ */
+
+function renderLesson(id){
+  const l = findLesson(id);
+  const s = loadProgress()[id] || {};
+  const modeDefs = [
+    ['learn','🗂 Учить'],
+    ['quiz','✅ Тест'],
+    ['listen','🎧 Слух'],
+    ['build','🧩 Фразы'],
+    ['match','🔗 Пары'],
+    ['speak','🎙 Речь'],
+  ];
+  const modes = modeDefs.map(([m, t]) => `
+    <div class="card" onclick="go('mode','${id}','${m}')">
+      <h3>${t}</h3>
+      <div class="bar"><i style="width:${s[m]||0}%"></i></div>
+    </div>`).join('');
+  app.innerHTML = `
+    <div class="crumbs" onclick="go('home')">← Все уроки</div>
+    <div class="lesson-head"><h2>${l.emoji} ${l.title}</h2><p>${l.desc} · ${l.words.length} слов и фраз</p></div>
+    <div class="modes">${modes}</div>
+    <div class="grammar">${l.grammar}</div>`;
+}
+
+function startMode(lessonId, mode){
+  const l = findLesson(lessonId);
+  if (mode === 'learn') startLearn(l);
+  else if (mode === 'quiz') startQuiz(l);
+  else if (mode === 'listen') startListen(l);
+  else if (mode === 'build') startBuild(l);
+  else if (mode === 'match') startMatch(l);
+  else if (mode === 'speak') startSpeak(l);
+}
+
+function doneCard(l, title, retryMode, nextMode, nextLabel){
+  const next = nextMode
+    ? `<button class="primary" onclick="go('mode','${l.id}','${nextMode}')">${nextLabel} →</button>`
+    : `<button class="primary" onclick="go('home')">К урокам</button>`;
+  return `${crumbs(l)}
+    <div class="big-card">
+      <div class="score">🎉</div>
+      <div class="pl" style="font-size:22px">${title}</div>
+      <div class="btns">
+        <button onclick="go('mode','${l.id}','${retryMode}')">Ещё раз</button>
+        ${next}
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   РЕЖИМ 1: КАРТОЧКИ
+   ============================================================ */
+
+function startLearn(l){
+  state.order = shuffle(l.words);
+  state.idx = 0;
+  state.seen = new Set();
+  renderLearn(l);
+}
+function renderLearn(l){
+  const w = state.order[state.idx];
+  state.seen.add(w.pl);
+  setStat(l.id, 'learn', state.seen.size / l.words.length * 100);
+  app.innerHTML = `
+    ${crumbs(l)}
+    <div class="big-card">
+      <div class="pl">${w.pl}</div>
+      <div class="tr">≈ ${translit(w.pl)}</div>
+      <div class="ru" id="ruBox" style="visibility:hidden">${w.ru}</div>
+      <div class="btns">
+        <button class="speak-btn" onclick="speak('${esc(w.pl)}')">🔊</button>
+        <button onclick="document.getElementById('ruBox').style.visibility='visible'">Перевод</button>
+      </div>
+      <div class="btns">
+        <button class="warn" onclick="learnRepeat()">🔁 Повторить позже</button>
+        <button class="primary" onclick="learnNext()">Знаю, дальше →</button>
+      </div>
+      <div class="meta">выучено ${state.seen.size} / ${l.words.length} · в очереди ${state.order.length - state.idx}</div>
+    </div>`;
+  if (autoTts) speak(w.pl);
+}
+function learnRepeat(){
+  const w = state.order[state.idx];
+  const pos = Math.min(state.idx + 5, state.order.length);
+  state.order.splice(pos, 0, w);
+  learnNext();
+}
+function learnNext(){
+  const l = findLesson(state.lessonId);
+  state.idx++;
+  if (state.idx >= state.order.length){
+    app.innerHTML = doneCard(l, 'Все карточки просмотрены!', 'learn', 'quiz', 'К тесту');
+    return;
+  }
+  renderLearn(l);
+}
+
+/* ============================================================
+   РЕЖИМ 2: БОЛЬШОЙ СМЕШАННЫЙ ТЕСТ
+   типы: mc_pl_ru, mc_ru_pl, audio_mc, type_pl, gap
+   ============================================================ */
+
+function makeQuestion(w, pool){
+  const types = ['mc_pl_ru','mc_ru_pl','audio_mc','type_pl'];
+  if (isPhrase(w.pl)) types.push('gap','gap');           // фразам чаще достаётся пропуск
+  if (tokens(w.pl).length > 4) types.splice(types.indexOf('type_pl'), 1); // длинное не печатаем
+  const type = types[Math.floor(Math.random() * types.length)];
+  const q = {type, w};
+  if (type === 'mc_pl_ru') q.options = shuffle([w, ...distractors(w, pool, 'ru', 5)]);
+  else if (type === 'mc_ru_pl') q.options = shuffle([w, ...distractors(w, pool, 'pl', 5)]);
+  else if (type === 'audio_mc') q.options = shuffle([w, ...distractors(w, pool, 'ru', 3)]);
+  else if (type === 'gap'){
+    const ws = tokens(w.pl);
+    const cands = ws.filter(t => t.length >= 4);
+    const gap = (cands.length ? cands : ws)[Math.floor(Math.random() * (cands.length ? cands.length : ws.length))];
+    const allTok = [...new Set(pool.flatMap(x => tokens(x.pl).map(t => t.toLowerCase())))]
+      .filter(t => !ws.map(x => x.toLowerCase()).includes(t) && Math.abs(t.length - gap.length) <= 3);
+    allTok.sort((a, b) => similarity(b, gap) - similarity(a, gap));
+    q.gap = gap;
+    q.display = w.pl.replace(gap, '_____');
+    q.options = shuffle([gap.toLowerCase(), ...shuffle(allTok.slice(0, 8)).slice(0, 3)]);
+  }
+  return q;
+}
+function genQuiz(pool, n){
+  return shuffle(pool).slice(0, n).map(w => makeQuestion(w, pool));
+}
+
+function startQuiz(l){
+  state.quiz = { qs: genQuiz(l.words, Math.min(20, l.words.length)), idx: 0, right: 0, mistakes: [], lesson: l, statKey: [l.id, 'quiz'] };
+  renderQuestion();
+}
+function startExam(){
+  state = { view: 'exam' };
+  state.quiz = { qs: genQuiz(ALL_WORDS, 30), idx: 0, right: 0, mistakes: [], lesson: null, statKey: ['exam', 'exam'] };
+  renderQuestion();
+}
+
+const Q_TITLES = {
+  mc_pl_ru: 'Выбери перевод',
+  mc_ru_pl: 'Как это по-польски?',
+  audio_mc: 'Послушай и выбери перевод',
+  type_pl: 'Напиши по-польски',
+  gap: 'Вставь пропущенное слово',
+};
+
+function quizCrumbs(){
+  const qz = state.quiz;
+  return qz.lesson ? crumbs(qz.lesson) : `<div class="crumbs" onclick="go('home')">← На главную (экзамен)</div>`;
+}
+function renderQuestion(){
+  const qz = state.quiz;
+  const q = qz.qs[qz.idx];
+  const head = `
+    ${quizCrumbs()}
+    <div class="big-card">
+      <div class="meta">Вопрос ${qz.idx + 1} / ${qz.qs.length} · верно: ${qz.right} <span class="badge">${Q_TITLES[q.type]}</span></div>`;
+  let body = '';
+  if (q.type === 'mc_pl_ru'){
+    body = `
+      <div class="pl" style="font-size:23px">${q.w.pl}</div>
+      <div class="btns"><button class="speak-btn" onclick="speak('${esc(q.w.pl)}')">🔊</button></div>
+      <div style="margin-top:12px">${q.options.map((o, i) =>
+        `<button class="opt" id="opt${i}" onclick="answerMC(${i})">${o.ru}</button>`).join('')}</div>`;
+    if (autoTts) setTimeout(() => speak(q.w.pl), 50);
+  } else if (q.type === 'mc_ru_pl'){
+    body = `
+      <div class="pl" style="font-size:21px">${q.w.ru}</div>
+      <div style="margin-top:12px">${q.options.map((o, i) =>
+        `<button class="opt" id="opt${i}" onclick="answerMC(${i})">${o.pl}</button>`).join('')}</div>`;
+  } else if (q.type === 'audio_mc'){
+    body = `
+      <div class="btns"><button class="speak-big" onclick="speak('${esc(q.w.pl)}')">🔊</button></div>
+      <div class="meta">Текст скрыт — только на слух</div>
+      <div style="margin-top:12px">${q.options.map((o, i) =>
+        `<button class="opt" id="opt${i}" onclick="answerMC(${i})">${o.ru}</button>`).join('')}</div>`;
+    setTimeout(() => speak(q.w.pl), 250);
+  } else if (q.type === 'type_pl'){
+    body = `
+      <div class="pl" style="font-size:21px">${q.w.ru}</div>
+      <input class="answer" id="typedInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="напиши по-польски (можно без ą, ł, ż…)">
+      <div class="btns"><button class="primary" onclick="answerTyped()">Проверить</button></div>
+      <div class="verdict" id="verdict"></div>`;
+  } else if (q.type === 'gap'){
+    body = `
+      <div class="gap-phrase">${q.display}</div>
+      <div class="ru" style="visibility:visible">${q.w.ru}</div>
+      <div style="margin-top:12px">${q.options.map((o, i) =>
+        `<button class="opt" id="opt${i}" onclick="answerGap(${i})" style="text-align:center">${o}</button>`).join('')}</div>`;
+  }
+  app.innerHTML = head + body + '</div>';
+  const inp = document.getElementById('typedInput');
+  if (inp){
+    inp.focus();
+    inp.onkeydown = e => { if (e.key === 'Enter') answerTyped(); };
+  }
+}
+function lockOpts(){ document.querySelectorAll('.opt').forEach(b => b.onclick = null); }
+function nextQuestion(delay){
+  setTimeout(() => {
+    const qz = state.quiz;
+    qz.idx++;
+    if (qz.idx >= qz.qs.length) return finishQuiz();
+    renderQuestion();
+  }, delay);
+}
+function answerMC(i){
+  const qz = state.quiz;
+  const q = qz.qs[qz.idx];
+  lockOpts();
+  const correctIdx = q.options.indexOf(q.w);
+  document.getElementById('opt' + correctIdx).classList.add('correct');
+  if (q.options[i] === q.w) qz.right++;
+  else { document.getElementById('opt' + i).classList.add('wrong'); qz.mistakes.push(q.w); }
+  if (q.type !== 'audio_mc') speak(q.w.pl);
+  nextQuestion(1200);
+}
+function answerGap(i){
+  const qz = state.quiz;
+  const q = qz.qs[qz.idx];
+  lockOpts();
+  const correctIdx = q.options.indexOf(q.gap.toLowerCase());
+  document.getElementById('opt' + correctIdx).classList.add('correct');
+  if (i === correctIdx){
+    qz.right++;
+    document.querySelector('.gap-phrase').textContent = q.w.pl;
+  } else {
+    document.getElementById('opt' + i).classList.add('wrong');
+    qz.mistakes.push(q.w);
+  }
+  speak(q.w.pl);
+  nextQuestion(1400);
+}
+function answerTyped(){
+  const qz = state.quiz;
+  const q = qz.qs[qz.idx];
+  const inp = document.getElementById('typedInput');
+  if (!inp || inp.disabled) return;
+  inp.disabled = true;
+  const got = norm(inp.value), want = norm(q.w.pl);
+  const v = document.getElementById('verdict');
+  const exact = got === want;
+  const noDia = stripDia(got) === stripDia(want);
+  const close = similarity(stripDia(got), stripDia(want)) >= 0.9;
+  if (exact){
+    qz.right++;
+    v.textContent = '✅ Идеально!';
+    v.className = 'verdict good';
+  } else if (noDia || close){
+    qz.right++;
+    v.textContent = '✅ Верно! Точное написание: ' + q.w.pl;
+    v.className = 'verdict good';
+  } else {
+    v.textContent = '❌ Правильно: ' + q.w.pl;
+    v.className = 'verdict bad';
+    qz.mistakes.push(q.w);
+  }
+  speak(q.w.pl);
+  nextQuestion(exact ? 1200 : 2200);
+}
+function finishQuiz(){
+  const qz = state.quiz;
+  const pct = Math.round(qz.right / qz.qs.length * 100);
+  setStat(qz.statKey[0], qz.statKey[1], pct);
+  const mist = qz.mistakes.length
+    ? `<div class="mistakes"><b>Повтори эти:</b>${qz.mistakes.map(w =>
+        `<div>🔊 <span style="cursor:pointer" onclick="speak('${esc(w.pl)}')"><b>${w.pl}</b></span> — ${w.ru}</div>`).join('')}</div>`
+    : '<div class="verdict good">Без единой ошибки! 🥇</div>';
+  const retry = qz.lesson
+    ? `<button onclick="go('mode','${qz.lesson.id}','quiz')">Ещё раз</button>
+       <button class="primary" onclick="go('mode','${qz.lesson.id}','listen')">Аудирование →</button>`
+    : `<button onclick="go('exam')">Ещё раз</button>
+       <button class="primary" onclick="go('home')">К урокам</button>`;
+  app.innerHTML = `${quizCrumbs()}
+    <div class="big-card">
+      <div class="score">${pct}%</div>
+      <div class="pl" style="font-size:20px">${qz.right} из ${qz.qs.length}</div>
+      ${mist}
+      <div class="btns">${retry}</div>
+    </div>`;
+}
+
+/* ============================================================
+   РЕЖИМ 3: АУДИРОВАНИЕ
+   ============================================================ */
+
+function startListen(l){
+  const items = shuffle(l.words).slice(0, Math.min(12, l.words.length));
+  state.listen = {
+    qs: items.map(w => ({w, options: shuffle([w, ...distractors(w, l.words, 'pl', 3)])})),
+    idx: 0, right: 0, l
+  };
+  renderListen();
+}
+function renderListen(){
+  const st = state.listen;
+  const q = st.qs[st.idx];
+  app.innerHTML = `
+    ${crumbs(st.l)}
+    <div class="big-card">
+      <div class="meta">Аудирование ${st.idx + 1} / ${st.qs.length} · верно: ${st.right}</div>
+      <div class="btns"><button class="speak-big" onclick="speak('${esc(q.w.pl)}')">🔊</button></div>
+      <div class="meta">Что ты услышала? Выбери фразу</div>
+      <div style="margin-top:12px">${q.options.map((o, i) =>
+        `<button class="opt" id="opt${i}" onclick="answerListen(${i})">${o.pl}</button>`).join('')}</div>
+      <div class="verdict" id="verdict"></div>
+    </div>`;
+  setTimeout(() => speak(q.w.pl), 250);
+}
+function answerListen(i){
+  const st = state.listen;
+  const q = st.qs[st.idx];
+  lockOpts();
+  const correctIdx = q.options.indexOf(q.w);
+  document.getElementById('opt' + correctIdx).classList.add('correct');
+  const v = document.getElementById('verdict');
+  if (q.options[i] === q.w){
+    st.right++;
+    v.textContent = '✅ ' + q.w.ru;
+    v.className = 'verdict good';
+  } else {
+    document.getElementById('opt' + i).classList.add('wrong');
+    v.textContent = '❌ Это было: «' + q.w.pl + '» — ' + q.w.ru;
+    v.className = 'verdict bad';
+  }
+  setTimeout(() => {
+    st.idx++;
+    if (st.idx >= st.qs.length){
+      const pct = Math.round(st.right / st.qs.length * 100);
+      setStat(st.l.id, 'listen', pct);
+      app.innerHTML = `${crumbs(st.l)}
+        <div class="big-card">
+          <div class="score">${pct}%</div>
+          <div class="pl" style="font-size:20px">Аудирование: ${st.right} из ${st.qs.length}</div>
+          <div class="btns">
+            <button onclick="go('mode','${st.l.id}','listen')">Ещё раз</button>
+            <button class="primary" onclick="go('mode','${st.l.id}','build')">Собери фразу →</button>
+          </div>
+        </div>`;
+      return;
+    }
+    renderListen();
+  }, 1500);
+}
+
+/* ============================================================
+   РЕЖИМ 4: СОБЕРИ ФРАЗУ (с обманками)
+   ============================================================ */
+
+function startBuild(l){
+  state.phrases = shuffle(l.words.filter(w => isPhrase(w.pl)));
+  state.bIdx = 0; state.bDone = 0;
+  renderBuild(l);
+}
+function renderBuild(l){
+  const ph = state.phrases[state.bIdx];
+  const words = tokens(ph.pl);
+  state.target = words;
+  state.picked = [];
+  /* обманки: 2 лишних слова из других фраз урока */
+  const extra = shuffle([...new Set(l.words.flatMap(x => tokens(x.pl)))]
+    .filter(t => !words.map(w => w.toLowerCase()).includes(t.toLowerCase())))
+    .slice(0, words.length >= 3 ? 2 : 1)
+    .map(t => t.toLowerCase());
+  const tiles = shuffle([...words.map(w => ({w, real: true})), ...extra.map(w => ({w, real: false}))]);
+  state.tiles = tiles;
+  app.innerHTML = `
+    ${crumbs(l)}
+    <div class="big-card">
+      <div class="meta">Фраза ${state.bIdx + 1} / ${state.phrases.length} · есть лишние слова!</div>
+      <div class="ru" style="margin-top:4px;visibility:visible">${ph.ru}</div>
+      <div class="answer-zone" id="zone"></div>
+      <div class="tiles" id="tiles">${tiles.map((t, k) =>
+        `<span class="tile" id="tile${k}" onclick="pickTile(${k})">${t.w}</span>`).join('')}</div>
+      <div class="btns">
+        <button class="ghost" onclick="renderBuild(findLesson(state.lessonId))">Сбросить</button>
+        <button class="primary" onclick="checkBuild()">Проверить</button>
+      </div>
+      <div class="verdict" id="verdict"></div>
+    </div>`;
+}
+function pickTile(k){
+  const t = state.tiles[k];
+  state.picked.push({k, w: t.w});
+  document.getElementById('tile' + k).classList.add('used');
+  const zone = document.getElementById('zone');
+  const el = document.createElement('span');
+  el.className = 'tile'; el.textContent = t.w;
+  el.onclick = () => {
+    state.picked = state.picked.filter(p => p.k !== k);
+    document.getElementById('tile' + k).classList.remove('used');
+    el.remove();
+  };
+  zone.appendChild(el);
+}
+function checkBuild(){
+  const got = state.picked.map(p => p.w).join(' ');
+  const want = state.target.join(' ');
+  const v = document.getElementById('verdict');
+  const l = findLesson(state.lessonId);
+  if (got === want){
+    v.textContent = '✅ Правильно! ' + state.phrases[state.bIdx].pl;
+    v.className = 'verdict good';
+    speak(state.phrases[state.bIdx].pl);
+    state.bDone++;
+    setStat(l.id, 'build', state.bDone / state.phrases.length * 100);
+    setTimeout(() => {
+      state.bIdx++;
+      if (state.bIdx >= state.phrases.length){
+        app.innerHTML = doneCard(l, 'Все фразы собраны!', 'build', 'match', 'К парам');
+        return;
+      }
+      renderBuild(l);
+    }, 1400);
+  } else {
+    v.textContent = '❌ Пока нет, попробуй ещё (лишние слова не нужны)';
+    v.className = 'verdict bad';
+  }
+}
+
+/* ============================================================
+   РЕЖИМ 5: НАЙДИ ПАРЫ
+   ============================================================ */
+
+function startMatch(l){
+  const ws = shuffle(l.words);
+  state.mSets = [];
+  for (let i = 0; i < ws.length && state.mSets.length < 3; i += 8){
+    const set = ws.slice(i, i + 8);
+    if (set.length >= 4) state.mSets.push(set);
+  }
+  state.mRound = 0; state.mErrors = 0;
+  renderMatch(l);
+}
+function renderMatch(l){
+  const set = state.mSets[state.mRound];
+  state.mLeft = shuffle(set.map((w, i) => ({w, i})));
+  state.mRight = shuffle(set.map((w, i) => ({w, i})));
+  state.selL = null; state.selR = null; state.mDone = 0;
+  app.innerHTML = `
+    ${crumbs(l)}
+    <div class="big-card" style="padding:18px 12px">
+      <div class="meta">Раунд ${state.mRound + 1} / ${state.mSets.length} · соедини пары · ошибок: <span id="errN">${state.mErrors}</span></div>
+      <div class="cols">
+        <div>${state.mLeft.map((x, k) =>
+          `<button class="opt pair" id="L${k}" onclick="pickPair('L',${k})" style="margin-top:8px">${x.w.pl}</button>`).join('')}</div>
+        <div>${state.mRight.map((x, k) =>
+          `<button class="opt pair" id="R${k}" onclick="pickPair('R',${k})" style="margin-top:8px">${x.w.ru}</button>`).join('')}</div>
+      </div>
+    </div>`;
+}
+function pickPair(side, k){
+  const id = side + k;
+  const el = document.getElementById(id);
+  if (el.classList.contains('done')) return;
+  if (side === 'L'){
+    if (state.selL !== null) document.getElementById('L' + state.selL).classList.remove('sel');
+    state.selL = k; el.classList.add('sel');
+    speak(state.mLeft[k].w.pl);
+  } else {
+    if (state.selR !== null) document.getElementById('R' + state.selR).classList.remove('sel');
+    state.selR = k; el.classList.add('sel');
+  }
+  if (state.selL === null || state.selR === null) return;
+  const L = document.getElementById('L' + state.selL), R = document.getElementById('R' + state.selR);
+  if (state.mLeft[state.selL].i === state.mRight[state.selR].i){
+    L.classList.remove('sel'); R.classList.remove('sel');
+    L.classList.add('done'); R.classList.add('done');
+    state.mDone++;
+    if (state.mDone === state.mSets[state.mRound].length){
+      const l = findLesson(state.lessonId);
+      state.mRound++;
+      if (state.mRound >= state.mSets.length){
+        setStat(l.id, 'match', 100);
+        app.innerHTML = doneCard(l, `Все пары найдены! Ошибок: ${state.mErrors}`, 'match', 'speak', 'К говорению');
+      } else {
+        setStat(l.id, 'match', state.mRound / state.mSets.length * 100);
+        setTimeout(() => renderMatch(l), 600);
+      }
+    }
+  } else {
+    state.mErrors++;
+    document.getElementById('errN').textContent = state.mErrors;
+    L.classList.add('err'); R.classList.add('err');
+    setTimeout(() => {
+      L.classList.remove('sel','err'); R.classList.remove('sel','err');
+    }, 500);
+  }
+  state.selL = null; state.selR = null;
+}
+
+/* ============================================================
+   РЕЖИМ 6: ГОВОРЕНИЕ
+   ============================================================ */
+
+function startSpeak(l){
+  state.sItems = shuffle(l.words).slice(0, Math.min(20, l.words.length));
+  state.sIdx = 0; state.sDone = 0;
+  renderSpeak(l);
+}
+function renderSpeak(l){
+  const w = state.sItems[state.sIdx];
+  const supported = !!SR;
+  app.innerHTML = `
+    ${crumbs(l)}
+    <div class="big-card">
+      <div class="meta">${state.sIdx + 1} / ${state.sItems.length}</div>
+      <div class="ru" style="visibility:visible;margin-top:4px">${w.ru}</div>
+      <div class="pl" style="margin-top:10px">${w.pl}</div>
+      <div class="tr">≈ ${translit(w.pl)}</div>
+      <div class="btns">
+        <button class="speak-btn" onclick="speak('${esc(w.pl)}')" title="Послушать">🔊</button>
+      </div>
+      <div class="btns">
+        ${supported
+          ? `<button class="mic" id="micBtn" onclick="listen()">🎙</button>`
+          : `<div class="note">Распознавание речи не поддерживается в этом браузере — открой страницу в Chrome.</div>`}
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <div class="heard" id="heard"></div>
+      <div class="btns">
+        <button class="ghost" onclick="speakNext()">Пропустить →</button>
+      </div>
+    </div>`;
+  if (autoTts) speak(w.pl);
+}
+function listen(){
+  const btn = document.getElementById('micBtn');
+  const verdict = document.getElementById('verdict');
+  const heard = document.getElementById('heard');
+  const target = state.sItems[state.sIdx].pl;
+  speechSynthesis.cancel();
+  const rec = new SR();
+  rec.lang = 'pl-PL';
+  rec.interimResults = false;
+  rec.maxAlternatives = 3;
+  btn.classList.add('listening');
+  verdict.textContent = 'Слушаю… говори по-польски';
+  verdict.className = 'verdict';
+  heard.textContent = '';
+  rec.onresult = (e) => {
+    btn.classList.remove('listening');
+    const alts = Array.from(e.results[0]).map(r => r.transcript);
+    let best = alts[0], bestSim = 0;
+    for (const a of alts){
+      const s = similarity(a, target);
+      if (s > bestSim){ bestSim = s; best = a; }
+    }
+    heard.textContent = 'Услышала: «' + best + '»';
+    const l = findLesson(state.lessonId);
+    if (bestSim >= 0.8){
+      verdict.textContent = '✅ Świetnie! Отличное произношение';
+      verdict.className = 'verdict good';
+      state.sDone++;
+      setStat(l.id, 'speak', state.sDone / state.sItems.length * 100);
+      setTimeout(speakNext, 1400);
+    } else if (bestSim >= 0.55){
+      verdict.textContent = '🟡 Почти! Послушай ещё раз и повтори';
+      verdict.className = 'verdict';
+      speak(target);
+    } else {
+      verdict.textContent = '❌ Не получилось распознать, попробуй ещё раз';
+      verdict.className = 'verdict bad';
+    }
+  };
+  rec.onerror = (e) => {
+    btn.classList.remove('listening');
+    verdict.className = 'verdict bad';
+    if (e.error === 'not-allowed') verdict.textContent = 'Нет доступа к микрофону — разреши его в настройках браузера';
+    else if (e.error === 'no-speech') verdict.textContent = 'Ничего не услышала, попробуй ещё раз';
+    else verdict.textContent = 'Ошибка распознавания (' + e.error + '). Нужен интернет.';
+  };
+  rec.onend = () => btn.classList.remove('listening');
+  rec.start();
+}
+function speakNext(){
+  const l = findLesson(state.lessonId);
+  state.sIdx++;
+  if (state.sIdx >= state.sItems.length){
+    app.innerHTML = doneCard(l, 'Урок говорения пройден!', 'speak', null, '');
+    return;
+  }
+  renderSpeak(l);
+}
+
+/* ============================================================ */
+
+renderAutoToggle();
+go('home');
+</script>
+</body>
+</html>

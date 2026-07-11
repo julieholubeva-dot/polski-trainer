@@ -101,6 +101,15 @@
   .bub.me .bru{color:#5b8a6d}
   .opt .oru{display:block;font-size:12px;color:var(--muted);margin-top:2px}
   .note-inline{font-size:13px;color:#3b5578;background:#eef3fb;border-radius:10px;padding:8px 12px;margin-top:12px;text-align:left}
+  .toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:14px;z-index:50;font-weight:600;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25);animation:toastIn .3s}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
+  .cf{position:fixed;inset:0;pointer-events:none;z-index:49;overflow:hidden}
+  .cf span{position:absolute;top:-34px;animation:cfFall linear forwards}
+  @keyframes cfFall{to{transform:translateY(110vh) rotate(540deg);opacity:.7}}
+  @media (prefers-reduced-motion: reduce){.cf span{animation:none;display:none}.toast{animation:none}}
+  .xpbar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:5px}
+  .xpbar i{display:block;height:100%;background:var(--accent2);border-radius:3px}
+  .combo{color:var(--accent2);font-weight:700}
 </style>
 </head>
 <body>
@@ -968,7 +977,10 @@ function bumpDay(){
 function recordSeen(w){
   if (!ALL_BY_PL.has(w.pl)) return;
   const s = loadWS();
-  if (!s[w.pl]) s[w.pl] = {box: 1, due: Date.now() + DAY_MS, err: 0, ok: 0};
+  if (!s[w.pl]){
+    s[w.pl] = {box: 1, due: Date.now() + DAY_MS, err: 0, ok: 0};
+    addXP(2);  // новое слово в работе
+  }
   saveWS(s); bumpDay();
 }
 function recordAnswer(w, correct){
@@ -1006,6 +1018,105 @@ function streak(){
     else break;
   }
   return n;
+}
+
+/* ============================================================
+   ГЕЙМИФИКАЦИЯ: XP, уровни, комбо, похвала и дерзость
+   ============================================================ */
+
+const XPK = 'polskiTrenerXP', XPDK = 'polskiTrenerXPDay';
+const DAILY_GOAL = 100;
+const LEVELS = [
+  [0, 'Kotek 🐱'], [100, 'Szczeniak 🐶'], [300, 'Uczennica 📚'], [600, 'Zawodniczka 🎾'],
+  [1000, 'Pani Trener 💪'], [1500, 'Mistrzyni 🏆'], [2200, 'Legenda kortu 👑'], [3000, 'Bogini polskiego ✨'],
+];
+function getXP(){ return Number(localStorage.getItem(XPK)) || 0; }
+function levelOf(xp){
+  let i = 0;
+  while (i + 1 < LEVELS.length && xp >= LEVELS[i + 1][0]) i++;
+  return i;
+}
+function xpToday(){
+  try { return (JSON.parse(localStorage.getItem(XPDK)) || {})[todayKey()] || 0; } catch(e){ return 0; }
+}
+function addXP(n){
+  const before = levelOf(getXP());
+  const xp = getXP() + n;
+  localStorage.setItem(XPK, String(xp));
+  let d; try { d = JSON.parse(localStorage.getItem(XPDK)) || {}; } catch(e){ d = {}; }
+  const k = todayKey();
+  const was = d[k] || 0;
+  d[k] = was + n;
+  localStorage.setItem(XPDK, JSON.stringify(d));
+  if (was < DAILY_GOAL && d[k] >= DAILY_GOAL){ toast('🎯 Цель дня выполнена! Всё, можешь собой гордиться, любимка'); confetti(); }
+  if (levelOf(xp) > before){ toast('🎉 Новый уровень: ' + LEVELS[levelOf(xp)][1]); confetti(); }
+}
+
+const PRAISE = [
+  'Молодец, котёнок! 😻',
+  'Любимка, ты просто пушка 🚀',
+  'Ну всё, Варшава, готовься 😎',
+  'Королева корта и падежей 👑',
+  'Идеально, солнышко ☀️',
+  'Зубрилка моя любимая 🤓',
+  'Вот это уровень, пани тренер! 🎾',
+  'Огонь! Поляки бы зааплодировали 👏',
+  'Умничка-разумничка 💅',
+  'Так, стоп, ты точно не полька? 🧐',
+  'Гениально, котик, продолжаем 🐾',
+  'Пять с плюсом, любимка ⭐',
+];
+const ROAST = [
+  'Вонючка, старайся лучше 🦨',
+  'Ну ты чего, котлетка? Соберись! 🥴',
+  'Позор джунглям! Ещё разок 🙈',
+  'Это было больно, любимка 💀',
+  'Мимо, растеряша 🤦‍♀️',
+  'Ай-ай-ай, а ещё тренер называется 🙄',
+  'Штрафной круг вокруг корта, бегом! 🏃‍♀️',
+  'Серьёзно?! Nie no, я в шоке 😤',
+  'Пан Тадеуш перевернулся в гробу 📖',
+  'Учебник польского плачет в уголке 😭',
+  'Промазала, зато с характером 💅',
+  'Э-э-э, куда?! Вернись и подумай 🧠',
+];
+function praise(){ return PRAISE[Math.floor(Math.random() * PRAISE.length)]; }
+function roast(){ return ROAST[Math.floor(Math.random() * ROAST.length)]; }
+function cheer(ok){
+  const v = document.getElementById('verdict');
+  if (!v) return;
+  v.textContent = ok ? praise() : roast();
+  v.className = 'verdict ' + (ok ? 'good' : 'bad');
+}
+function finalVerdict(pct){
+  if (pct >= 90) return '👑 Богиня польского! Корт у твоих ног';
+  if (pct >= 70) return '😻 Молодец, котёнок, почти идеально!';
+  if (pct >= 50) return '😼 Неплохо, любимка, но ты можешь лучше';
+  return '🦨 Вонючка дня! Завтра реванш, я в тебя верю';
+}
+function toast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+function confetti(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box = document.createElement('div');
+  box.className = 'cf';
+  const em = ['🎾', '⭐', '💚', '🔥', '💫', '🏆'];
+  for (let i = 0; i < 36; i++){
+    const s = document.createElement('span');
+    s.textContent = em[i % em.length];
+    s.style.left = (Math.random() * 100) + 'vw';
+    s.style.animationDelay = (Math.random() * 0.6) + 's';
+    s.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+    s.style.fontSize = (14 + Math.random() * 18) + 'px';
+    box.appendChild(s);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 3800);
 }
 
 let autoTts = localStorage.getItem('polskiTrenerAuto') !== 'off';
@@ -1074,6 +1185,11 @@ function renderHome(){
   const total = ALL_WORDS.length;
   const c = srsCounts();
   const sk = streak();
+  const xp = getXP();
+  const lv = levelOf(xp);
+  const goalToday = xpToday();
+  const nextAt = lv + 1 < LEVELS.length ? LEVELS[lv + 1][0] : xp;
+  const xpPct = nextAt > LEVELS[lv][0] ? Math.round((xp - LEVELS[lv][0]) / (nextAt - LEVELS[lv][0]) * 100) : 100;
   const cards = LESSONS.map(l => `
     <div class="card" onclick="go('lesson','${l.id}')">
       <div class="emoji">${l.emoji}</div>
@@ -1098,6 +1214,18 @@ function renderHome(){
       <div class="stat-item"><div class="num">${c.learned}</div><div class="lbl">знаю хорошо</div></div>
       <div class="stat-item"><div class="num">${c.due}</div><div class="lbl">пора повторить</div></div>
       <button class="${c.due ? 'warn' : 'ghost'}" onclick="go('review')">🔁 Повторение</button>
+    </div>
+    <div class="stats-strip">
+      <div style="flex:2;min-width:170px">
+        <div class="lbl">уровень</div>
+        <div style="font-weight:800;font-size:17px">${LEVELS[lv][1]}</div>
+        <div class="xpbar"><i style="width:${xpPct}%"></i></div>
+        <div class="lbl">${xp} XP${lv + 1 < LEVELS.length ? ' · до «' + LEVELS[lv + 1][1] + '» ещё ' + (LEVELS[lv + 1][0] - xp) : ' · максимум!'}</div>
+      </div>
+      <div class="stat-item">
+        <div class="num">🎯 ${Math.min(goalToday, DAILY_GOAL)}/${DAILY_GOAL}</div>
+        <div class="lbl">XP сегодня</div>
+      </div>
     </div>
     <div class="card" onclick="go('alphabet')" style="margin-bottom:12px">
       <div class="emoji">🔤</div>
@@ -1192,6 +1320,8 @@ function startMode(lessonId, mode){
 }
 
 function doneCard(l, title, retryMode, nextMode, nextLabel){
+  addXP(15);
+  confetti();
   const next = nextMode
     ? `<button class="primary" onclick="go('mode','${l.id}','${nextMode}')">${nextLabel} →</button>`
     : `<button class="primary" onclick="go('home')">К урокам</button>`;
@@ -1199,6 +1329,7 @@ function doneCard(l, title, retryMode, nextMode, nextLabel){
     <div class="big-card">
       <div class="score">🎉</div>
       <div class="pl" style="font-size:22px">${title}</div>
+      <div class="verdict good">${praise()}</div>
       <div class="btns">
         <button onclick="go('mode','${l.id}','${retryMode}')">Ещё раз</button>
         ${next}
@@ -1312,10 +1443,11 @@ function quizCrumbs(){
 function renderQuestion(){
   const qz = state.quiz;
   const q = qz.qs[qz.idx];
+  const combo = qz.combo >= 2 ? ` · <span class="combo">🔥 x${qz.combo}</span>` : '';
   const head = `
     ${quizCrumbs()}
     <div class="big-card">
-      <div class="meta">Вопрос ${qz.idx + 1} / ${qz.qs.length} · верно: ${qz.right} <span class="badge">${Q_TITLES[q.type]}</span></div>`;
+      <div class="meta">Вопрос ${qz.idx + 1} / ${qz.qs.length} · верно: ${qz.right}${combo} <span class="badge">${Q_TITLES[q.type]}</span></div>`;
   let body = '';
   if (q.type === 'mc_pl_ru'){
     body = `
@@ -1349,6 +1481,7 @@ function renderQuestion(){
       <div style="margin-top:12px">${q.options.map((o, i) =>
         `<button class="opt" id="opt${i}" onclick="answerGap(${i})" style="text-align:center">${o}</button>`).join('')}</div>`;
   }
+  if (q.type !== 'type_pl') body += '<div class="verdict" id="verdict"></div>';
   app.innerHTML = head + body + '</div>';
   const inp = document.getElementById('typedInput');
   if (inp){
@@ -1371,11 +1504,26 @@ function answerMC(i){
   lockOpts();
   const correctIdx = q.options.indexOf(q.w);
   document.getElementById('opt' + correctIdx).classList.add('correct');
-  recordAnswer(q.w, q.options[i] === q.w);
-  if (q.options[i] === q.w) qz.right++;
+  const ok = q.options[i] === q.w;
+  recordAnswer(q.w, ok);
+  quizFeedback(ok);
+  if (ok) qz.right++;
   else { document.getElementById('opt' + i).classList.add('wrong'); qz.mistakes.push(q.w); }
   if (q.type !== 'audio_mc') speak(q.w.pl);
-  nextQuestion(1200);
+  nextQuestion(ok ? 1300 : 1700);
+}
+/* комбо + XP + дерзкий вердикт для вопросов теста */
+function quizFeedback(ok){
+  const qz = state.quiz;
+  qz.combo = ok ? (qz.combo || 0) + 1 : 0;
+  addXP(ok ? 10 : 2);
+  const v = document.getElementById('verdict');
+  if (!v) return;
+  if (ok && qz.combo >= 5 && qz.combo % 5 === 0){
+    v.textContent = `🔥 ${qz.combo} подряд! Ты в ударе, зверюга!`;
+    v.className = 'verdict good';
+    confetti();
+  } else cheer(ok);
 }
 function answerGap(i){
   const qz = state.quiz;
@@ -1384,6 +1532,7 @@ function answerGap(i){
   const correctIdx = q.options.indexOf(q.gap.toLowerCase());
   document.getElementById('opt' + correctIdx).classList.add('correct');
   recordAnswer(q.w, i === correctIdx);
+  quizFeedback(i === correctIdx);
   if (i === correctIdx){
     qz.right++;
     document.querySelector('.gap-phrase').textContent = q.w.pl;
@@ -1392,7 +1541,7 @@ function answerGap(i){
     qz.mistakes.push(q.w);
   }
   speak(q.w.pl);
-  nextQuestion(1400);
+  nextQuestion(i === correctIdx ? 1400 : 1800);
 }
 function answerTyped(){
   const qz = state.quiz;
@@ -1406,16 +1555,18 @@ function answerTyped(){
   const noDia = stripDia(got) === stripDia(want);
   const close = similarity(stripDia(got), stripDia(want)) >= 0.9;
   recordAnswer(q.w, exact || noDia || close);
+  qz.combo = (exact || noDia || close) ? (qz.combo || 0) + 1 : 0;
+  addXP((exact || noDia || close) ? 10 : 2);
   if (exact){
     qz.right++;
-    v.textContent = '✅ Идеально!';
+    v.textContent = '✨ ' + praise() + ' Идеально, до буквы!';
     v.className = 'verdict good';
   } else if (noDia || close){
     qz.right++;
-    v.textContent = '✅ Верно! Точное написание: ' + q.w.pl;
+    v.textContent = praise() + ' Точное написание: ' + q.w.pl;
     v.className = 'verdict good';
   } else {
-    v.textContent = '❌ Правильно: ' + q.w.pl;
+    v.textContent = roast() + ' Правильно: ' + q.w.pl;
     v.className = 'verdict bad';
     qz.mistakes.push(q.w);
   }
@@ -1426,8 +1577,10 @@ function finishQuiz(){
   const qz = state.quiz;
   const pct = Math.round(qz.right / qz.qs.length * 100);
   setStat(qz.statKey[0], qz.statKey[1], pct);
+  addXP(20 + (pct === 100 ? 30 : 0));
+  if (pct >= 70) confetti();
   const mist = qz.mistakes.length
-    ? `<div class="mistakes"><b>Повтори эти:</b>${qz.mistakes.map(w =>
+    ? `<div class="mistakes"><b>Повтори эти, растеряша:</b>${qz.mistakes.map(w =>
         `<div>🔊 <span style="cursor:pointer" onclick="speak('${esc(w.pl)}')"><b>${w.pl}</b></span> — ${w.ru}</div>`).join('')}</div>`
     : '<div class="verdict good">Без единой ошибки! 🥇</div>';
   const retry = qz.lesson
@@ -1442,6 +1595,7 @@ function finishQuiz(){
     <div class="big-card">
       <div class="score">${pct}%</div>
       <div class="pl" style="font-size:20px">${qz.right} из ${qz.qs.length}</div>
+      <div class="verdict ${pct >= 70 ? 'good' : 'bad'}">${finalVerdict(pct)}</div>
       ${mist}
       <div class="btns">${retry}</div>
     </div>`;
@@ -1481,14 +1635,15 @@ function answerListen(i){
   const correctIdx = q.options.indexOf(q.w);
   document.getElementById('opt' + correctIdx).classList.add('correct');
   recordAnswer(q.w, q.options[i] === q.w);
+  addXP(q.options[i] === q.w ? 10 : 2);
   const v = document.getElementById('verdict');
   if (q.options[i] === q.w){
     st.right++;
-    v.textContent = '✅ ' + q.w.ru;
+    v.textContent = praise() + ' Это значит: ' + q.w.ru;
     v.className = 'verdict good';
   } else {
     document.getElementById('opt' + i).classList.add('wrong');
-    v.textContent = '❌ Это было: «' + q.w.pl + '» — ' + q.w.ru;
+    v.textContent = roast() + ' Это было: «' + q.w.pl + '» — ' + q.w.ru;
     v.className = 'verdict bad';
   }
   setTimeout(() => {
@@ -1496,10 +1651,13 @@ function answerListen(i){
     if (st.idx >= st.qs.length){
       const pct = Math.round(st.right / st.qs.length * 100);
       setStat(st.l.id, 'listen', pct);
+      addXP(20);
+      if (pct >= 70) confetti();
       app.innerHTML = `${crumbs(st.l)}
         <div class="big-card">
           <div class="score">${pct}%</div>
           <div class="pl" style="font-size:20px">Аудирование: ${st.right} из ${st.qs.length}</div>
+          <div class="verdict ${pct >= 70 ? 'good' : 'bad'}">${finalVerdict(pct)}</div>
           <div class="btns">
             <button onclick="go('mode','${st.l.id}','listen')">Ещё раз</button>
             <button class="primary" onclick="go('mode','${st.l.id}','build')">Собери фразу →</button>
@@ -1567,10 +1725,11 @@ function checkBuild(){
   const v = document.getElementById('verdict');
   const l = findLesson(state.lessonId);
   if (got === want){
-    v.textContent = '✅ Правильно! ' + state.phrases[state.bIdx].pl;
+    v.textContent = praise() + ' ' + state.phrases[state.bIdx].pl;
     v.className = 'verdict good';
     speak(state.phrases[state.bIdx].pl);
     recordAnswer(state.phrases[state.bIdx], true);
+    addXP(15);
     state.bDone++;
     setStat(l.id, 'build', state.bDone / state.phrases.length * 100);
     setTimeout(() => {
@@ -1582,7 +1741,7 @@ function checkBuild(){
       renderBuild(l);
     }, 1400);
   } else {
-    v.textContent = '❌ Пока нет, попробуй ещё (лишние слова не нужны)';
+    v.textContent = roast() + ' Лишние слова не нужны — собери заново';
     v.className = 'verdict bad';
   }
 }
@@ -1635,6 +1794,7 @@ function pickPair(side, k){
   if (state.mLeft[state.selL].i === state.mRight[state.selR].i){
     L.classList.remove('sel'); R.classList.remove('sel');
     L.classList.add('done'); R.classList.add('done');
+    addXP(5);
     state.mDone++;
     if (state.mDone === state.mSets[state.mRound].length){
       const l = findLesson(state.lessonId);
@@ -1718,18 +1878,19 @@ function listen(){
     heard.textContent = 'Услышала: «' + best + '»';
     const l = findLesson(state.lessonId);
     if (bestSim >= 0.8){
-      verdict.textContent = '✅ Świetnie! Отличное произношение';
+      verdict.textContent = 'Świetnie! ' + praise();
       verdict.className = 'verdict good';
       recordAnswer(state.sItems[state.sIdx], true);
+      addXP(15);
       state.sDone++;
       setStat(l.id, 'speak', state.sDone / state.sItems.length * 100);
       setTimeout(speakNext, 1400);
     } else if (bestSim >= 0.55){
-      verdict.textContent = '🟡 Почти! Послушай ещё раз и повтори';
+      verdict.textContent = '🟡 Почти, котёнок! Послушай ещё раз и повтори';
       verdict.className = 'verdict';
       speak(target);
     } else {
-      verdict.textContent = '❌ Не получилось распознать, попробуй ещё раз';
+      verdict.textContent = roast() + ' Попробуй ещё раз';
       verdict.className = 'verdict bad';
     }
   };
@@ -1828,8 +1989,10 @@ function renderDialogue(){
   const cur = d.turns[turn];
   let controls = '';
   if (!cur){
+    if (getStat(d.id, 'dlg') < 100) addXP(25);
     setStat(d.id, 'dlg', 100);
-    controls = `<div class="verdict good">🎉 Диалог пройден! Ошибок: ${state.errors}</div>
+    confetti();
+    controls = `<div class="verdict good">🎉 Диалог пройден! Ошибок: ${state.errors}. ${state.errors === 0 ? praise() : 'Живой разговор — уже победа, любимка!'}</div>
       <div class="btns">
         <button onclick="startDialogue('${d.id}')">Ещё раз</button>
         <button class="primary" onclick="go('home')">К диалогам</button>
@@ -1864,14 +2027,17 @@ function dlgAnswer(i){
   const correct = state.opts[i] === state.d.turns[state.turn];
   bumpDay();
   if (correct){
+    addXP(10);
+    if (Math.random() < 0.4) toast(praise());
     speak(state.d.turns[state.turn].pl);
     dlgNext();
   } else {
     state.errors++;
+    addXP(2);
     const el = document.getElementById('opt' + i);
     el.classList.add('wrong');
     const v = document.getElementById('verdict');
-    v.textContent = '❌ Эта реплика из другого разговора, попробуй ещё';
+    v.textContent = roast() + ' Эта реплика из другого разговора';
     v.className = 'verdict bad';
   }
 }
@@ -1933,13 +2099,14 @@ function answerNumber(){
   if (q.kind === 'time') ok = digits.length >= 1 && digits[0] === q.h && (digits[1] || 0) === q.m;
   else ok = digits.length === 1 && digits[0] === q.n;
   bumpDay();
+  addXP(ok ? 12 : 2);
   const v = document.getElementById('verdict');
   if (ok){
     st.right++;
-    v.textContent = '✅ ' + q.show + ' — ' + q.say;
+    v.textContent = praise() + ' ' + q.show + ' — ' + q.say;
     v.className = 'verdict good';
   } else {
-    v.textContent = '❌ Это было ' + q.show + ' — ' + q.say;
+    v.textContent = roast() + ' Это было ' + q.show + ' — ' + q.say;
     v.className = 'verdict bad';
   }
   setTimeout(() => {
@@ -1947,10 +2114,13 @@ function answerNumber(){
     if (st.idx >= st.qs.length){
       const pct = Math.round(st.right / st.qs.length * 100);
       setStat('numbers', 'numbers', pct);
+      addXP(20);
+      if (pct >= 70) confetti();
       app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
         <div class="big-card">
           <div class="score">${pct}%</div>
           <div class="pl" style="font-size:20px">Числа: ${st.right} из ${st.qs.length}</div>
+          <div class="verdict ${pct >= 70 ? 'good' : 'bad'}">${finalVerdict(pct)}</div>
           <div class="btns">
             <button onclick="go('numbers')">Ещё раз</button>
             <button class="primary" onclick="go('home')">К урокам</button>
@@ -1959,7 +2129,7 @@ function answerNumber(){
       return;
     }
     renderNumbers();
-  }, ok ? 1300 : 2400);
+  }, ok ? 1500 : 2600);
 }
 
 /* ============================================================
@@ -1995,8 +2165,9 @@ function answerGrammar(k){
   if (ok) st.right++;
   else document.getElementById('opt' + k).classList.add('wrong');
   bumpDay();
+  addXP(ok ? 10 : 2);
   const note = document.getElementById('grNote');
-  note.textContent = '💡 ' + q.note;
+  note.textContent = (ok ? praise() : roast()) + ' 💡 ' + q.note;
   note.style.display = 'block';
   speak(q.q.replace('___', q.a).replace(/\(.*?\)/, '').trim());
   setTimeout(() => {
@@ -2004,10 +2175,13 @@ function answerGrammar(k){
     if (st.idx >= st.qs.length){
       const pct = Math.round(st.right / st.qs.length * 100);
       setStat('grammar', 'grammar', pct);
+      addXP(20);
+      if (pct >= 70) confetti();
       app.innerHTML = `<div class="crumbs" onclick="go('home')">← На главную</div>
         <div class="big-card">
           <div class="score">${pct}%</div>
           <div class="pl" style="font-size:20px">Грамматика: ${st.right} из ${st.qs.length}</div>
+          <div class="verdict ${pct >= 70 ? 'good' : 'bad'}">${finalVerdict(pct)}</div>
           <div class="btns">
             <button onclick="go('grammar')">Ещё раз</button>
             <button class="primary" onclick="go('home')">К урокам</button>

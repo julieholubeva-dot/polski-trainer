@@ -1,4 +1,4 @@
-const V = 'polski-v3';
+const V = 'polski-v4';
 
 self.addEventListener('install', e => {
   e.waitUntil(
